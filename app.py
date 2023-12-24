@@ -9,6 +9,13 @@ import TwitchAPIConn
 if __name__ == "__main__":
     #grab channel details
     config = None
+    
+    #check if config file exists
+    if not os.path.exists("config.json"):
+        print("Config json file does not exist. please create and edit it.")
+        exit()
+    
+    #load config file
     with open("config.json", "r") as f:
         config = json.load(f)
     
