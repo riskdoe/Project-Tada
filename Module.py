@@ -3,12 +3,12 @@
 # and override them with their own code
 
 class Module():
-    def __init__(self, name, handler):
+    def __init__(self, name, eventHandler):
         self.name = name
         self.__version__ = '0.0.1'
         self.__author__ = 'Author Name'
         self.__description__ = 'Module description'
-        self.event_Handler = handler
+        self.event_Handler = eventHandler
         
     def on_load(self):
         pass
@@ -19,7 +19,7 @@ class Module():
     # |> IRC Events <|
         
     # recv message
-    def on_message(self, message):
+    def on_message(self, data):
         pass
     
     # send message

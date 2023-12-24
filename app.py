@@ -1,6 +1,8 @@
 import json
 import os
 import sqlite3
+from EventHandler import EventHandler
+from ModuleChatLog import ChatLog
 import TwitchAPIConn
 
 
@@ -30,8 +32,14 @@ if __name__ == "__main__":
     else:
         print("Database file found.")
         
-        
-    TwitchAPIConn.run(channel, clientID, clientSecret)
+    # Create event handler
+    eventHandler = EventHandler()
+    # create chat log module
+    chatLog = ChatLog(eventHandler)
+    eventHandler.AddModule(chatLog)
+    
+    # connect to twitch
+    TwitchAPIConn.run(channel, clientID, clientSecret, eventHandler)
     
     
     

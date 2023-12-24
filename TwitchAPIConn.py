@@ -5,6 +5,7 @@ from twitchAPI.oauth import UserAuthenticator, UserAuthenticationStorageHelper
 from twitchAPI.type import AuthScope, ChatEvent, TwitchAPIException
 from twitchAPI.chat import Chat, EventData, ChatMessage
 from flask import Flask, redirect, request
+from EventHandler import EventHandler
 from pathlib import PurePath
 import asyncio
 
@@ -13,7 +14,7 @@ import asyncio
 APP_ID = None
 APP_SECRET = None
 TARGET_CHANNEL = None
-EVENT_HANDLER = None
+EVENT_HANDLER : EventHandler = None
 TARGET_SCOPE = [AuthScope.CHAT_READ, AuthScope.CHAT_EDIT]
 
 
@@ -54,6 +55,8 @@ async def on_ready(ready_event: EventData):
 #will be called when ever a message is sent to target channel
 async def on_message(msg: ChatMessage):
     # print(f'{msg.user.name}: {msg.text}')
+    #print(EVENT_HANDLER)
+    EVENT_HANDLER.on_message(data = msg)
     pass
 
 
@@ -88,11 +91,13 @@ async def twitch_setup():
     
     
     
-def run(channel, clientID, clientSecret):
+def run(channel, clientID, clientSecret, EventHandler):
     global APP_ID, APP_SECRET, TARGET_CHANNEL, EVENT_HANDLER
     APP_ID = clientID
     APP_SECRET = clientSecret
     TARGET_CHANNEL = channel
+    EVENT_HANDLER = EventHandler
+    
     print("app id: " + APP_ID)
     print("app secret: " + APP_SECRET)
     print("target channel: " + TARGET_CHANNEL)
