@@ -4,7 +4,7 @@ from twitchAPI.twitch import Twitch
 from twitchAPI.oauth import UserAuthenticator, UserAuthenticationStorageHelper
 from twitchAPI.type import AuthScope, ChatEvent, TwitchAPIException
 from twitchAPI.chat import Chat, EventData, ChatMessage
-from flask import Flask, redirect, request
+from fastapi import FastAPI
 from EventHandler import EventHandler
 from pathlib import PurePath
 import asyncio
@@ -20,7 +20,7 @@ EVENT_HANDLER : EventHandler = None
 TARGET_SCOPE = [AuthScope.CHAT_READ, AuthScope.CHAT_EDIT]
 
 
-app = Flask("TADA")
+app = FastAPI()
 twitch: Twitch
 auth: UserAuthenticator
 
