@@ -8,6 +8,8 @@ from flask import Flask, redirect, request
 from EventHandler import EventHandler
 from pathlib import PurePath
 import asyncio
+import logging
+
 
 
 
@@ -18,7 +20,7 @@ EVENT_HANDLER : EventHandler = None
 TARGET_SCOPE = [AuthScope.CHAT_READ, AuthScope.CHAT_EDIT]
 
 
-app = Flask(__name__)
+app = Flask("TADA")
 twitch: Twitch
 auth: UserAuthenticator
 
@@ -50,11 +52,11 @@ async def on_ready(ready_event: EventData):
     # connect to channel
     await ready_event.chat.join_room(TARGET_CHANNEL)
     # inform the streamer we are connected
-    await ready_event.chat.send_message(TARGET_CHANNEL, 'alive and kicking!')
+    await ready_event.chat.send_message(TARGET_CHANNEL, f'Connected to {TARGET_CHANNEL}')
     
 #will be called when ever a message is sent to target channel
 async def on_message(msg: ChatMessage):
-    # print(f'{msg.user.name}: {msg.text}')
+    # logging.info(f'{msg.user.name}: {msg.text}')
     #print(EVENT_HANDLER)
     EVENT_HANDLER.on_message(data = msg)
     pass
@@ -62,14 +64,14 @@ async def on_message(msg: ChatMessage):
 
 async def twitch_setup():
     global twitch, auth
-    print(APP_ID)
+    #logging.info(APP_ID)
 
     twitch = await Twitch(APP_ID, APP_SECRET)
     auth = UserAuthenticator(twitch, TARGET_SCOPE)
     helper = UserAuthenticationStorageHelper(
         twitch,
         TARGET_SCOPE,
-        storage_path=PurePath('./file.json'
+        storage_path=PurePath('./oauth.json'
     ))
     await helper.bind()
     # target channels
@@ -98,7 +100,7 @@ def run(channel, clientID, clientSecret, EventHandler):
     TARGET_CHANNEL = channel
     EVENT_HANDLER = EventHandler
     
-    print("app id: " + APP_ID)
-    print("app secret: " + APP_SECRET)
-    print("target channel: " + TARGET_CHANNEL)
+    logging.info("app id: " + APP_ID)
+    logging.info("app secret: " + APP_SECRET)
+    logging.info("target channel: " + TARGET_CHANNEL)
     asyncio.run(twitch_setup())
