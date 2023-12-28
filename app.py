@@ -22,7 +22,7 @@ eventHandler = None
 
 # Create a new FastAPI application
 app = FastAPI()
-app.include_router(chat_log_router, prefix="/chat_log")
+app.include_router(chat_log_router, prefix="/api/v1")
 
 # Define a route
 @app.get("/")
@@ -32,6 +32,12 @@ def read_root():
 # Function to run FastAPI server
 def start_fastapi():
     uvicorn.run(app, host="127.0.0.1", port=8080)
+    try:
+        input('enter to exit')
+    except KeyboardInterrupt:
+        pass
+    finally:
+        exit()
 
 def start_twitch():
         
@@ -84,9 +90,7 @@ def start_twitch():
     
     # connect to twitch
     TwitchAPIConn.run(channel, clientID, clientSecret, eventHandler)
-
 if __name__ == "__main__":
-
     
     # Run FastAPI server in a separate thread
     fastapi_thread = Thread(target=start_fastapi)
@@ -96,6 +100,6 @@ if __name__ == "__main__":
     twitch_thread = Thread(target=start_twitch)
     twitch_thread.start()
     
-    # Wait for threads to finish
-    fastapi_thread.join()
     twitch_thread.join()
+    fastapi_thread.join()
+    

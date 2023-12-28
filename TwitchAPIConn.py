@@ -4,7 +4,8 @@ from twitchAPI.twitch import Twitch
 from twitchAPI.oauth import UserAuthenticator, UserAuthenticationStorageHelper
 from twitchAPI.type import AuthScope, ChatEvent, TwitchAPIException
 from twitchAPI.chat import Chat, EventData, ChatMessage
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import RedirectResponse
 from EventHandler import EventHandler
 from pathlib import PurePath
 import asyncio
@@ -29,15 +30,15 @@ auth: UserAuthenticator
     
 @app.route('/login')
 def login(self):
-    return redirect(auth.return_auth_url())
+    return RedirectResponse(auth.return_auth_url())
 
 
 @app.route('/login/confirm')
 async def login_confirm():
-    state = request.args.get('state')
+    state = Request.args.get('state')
     if state != auth.state:
         return 'Bad state', 401
-    code = request.args.get('code')
+    code = Request.args.get('code')
     if code is None:
         return 'Missing code', 400
     try:
@@ -52,7 +53,7 @@ async def on_ready(ready_event: EventData):
     # connect to channel
     await ready_event.chat.join_room(TARGET_CHANNEL)
     # inform the streamer we are connected
-    await ready_event.chat.send_message(TARGET_CHANNEL, f'Connected to {TARGET_CHANNEL}')
+    #await ready_event.chat.send_message(TARGET_CHANNEL, f'Connected to {TARGET_CHANNEL}')
     
 #will be called when ever a message is sent to target channel
 async def on_message(msg: ChatMessage):
@@ -83,12 +84,14 @@ async def twitch_setup():
     #start chat
     chat.start()
     try:
-        input('press Enter to shut down...\n')
+        input('enter to exit\n')
     except KeyboardInterrupt:
         pass
     finally:
         chat.stop()
         await twitch.close()
+        logging.info("twitch connection closed")
+        exit()
     
     
     
