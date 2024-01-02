@@ -12,13 +12,22 @@ import asyncio
 import logging
 
 
+#copy paste of imports from eventsub
+from pathlib import PurePath
+from twitchAPI.helper import first
+from twitchAPI.twitch import Twitch
+from twitchAPI.oauth import UserAuthenticationStorageHelper
+from twitchAPI.object.eventsub import ChannelFollowEvent, ChannelBanEvent
+from twitchAPI.eventsub.websocket import EventSubWebsocket
+from EventHandler import EventHandler
+from twitchAPI.type import AuthScope
 
 
 APP_ID = None
 APP_SECRET = None
 TARGET_CHANNEL = None
 EVENT_HANDLER : EventHandler = None
-TARGET_SCOPE = [AuthScope.CHAT_READ, AuthScope.CHAT_EDIT]
+TARGET_SCOPE = [AuthScope.CHAT_READ, AuthScope.CHAT_EDIT,AuthScope.MODERATOR_READ_FOLLOWERS, AuthScope.CHANNEL_MODERATE]
 
 
 app = FastAPI()
@@ -62,19 +71,32 @@ async def on_message(msg: ChatMessage):
     EVENT_HANDLER.on_message(data = msg)
     pass
 
+#on follow events
+async def on_follow(data: ChannelFollowEvent):
+    # our event happened, lets do things with the data we got!
+    #print(f'{data.event.user_name} now follows {data.event.broadcaster_user_name}!')
+    EVENT_HANDLER.on_follow(data)
+    
+#on ban events
+async def on_ban(data: ChannelBanEvent):
+    EVENT_HANDLER.on_ban(data)
+
 
 async def twitch_setup():
     global twitch, auth
+    global TARGET_CHANNEL
     #logging.info(APP_ID)
-
+    
     twitch = await Twitch(APP_ID, APP_SECRET)
     auth = UserAuthenticator(twitch, TARGET_SCOPE)
-    helper = UserAuthenticationStorageHelper(
-        twitch,
-        TARGET_SCOPE,
-        storage_path=PurePath('./oauth.json'
-    ))
+    helper = UserAuthenticationStorageHelper( twitch, TARGET_SCOPE, storage_path=PurePath('./oauth.json'))
     await helper.bind()
+    
+    #get target channel
+    user = await first(twitch.get_users())
+    TARGET_CHANNEL = user.login
+    logging.info("target channel: " + TARGET_CHANNEL)
+    
     # target channels
     chat = await Chat(twitch)
     
@@ -83,6 +105,20 @@ async def twitch_setup():
     
     #start chat
     chat.start()
+    
+    #test to see if we can run the websocket here
+    user = await first(twitch.get_users())
+    
+    # create eventsub websocket for all end points and send them to eventhandler
+    eventsub = EventSubWebsocket(twitch)
+    eventsub.start()
+    
+    #add events. these will be send over to event handler
+    
+    await eventsub.listen_channel_follow_v2(user.id, user.id, on_follow)
+    await eventsub.listen_channel_ban(user.id, on_ban)
+    
+    
     try:
         input('enter to exit\n')
     except KeyboardInterrupt:
@@ -96,14 +132,13 @@ async def twitch_setup():
     
     
     
-def run(channel, clientID, clientSecret, EventHandler):
+def run( clientID, clientSecret, EventHandler: EventHandler):
     global APP_ID, APP_SECRET, TARGET_CHANNEL, EVENT_HANDLER
     APP_ID = clientID
     APP_SECRET = clientSecret
-    TARGET_CHANNEL = channel
     EVENT_HANDLER = EventHandler
     
-    logging.info("app id: " + APP_ID)
-    logging.info("app secret: " + APP_SECRET)
-    logging.info("target channel: " + TARGET_CHANNEL)
+    logging.info("starting twitch chat connection")
+    #logging.info("app id: " + APP_ID)
+    #logging.info("app secret: " + APP_SECRET)
     asyncio.run(twitch_setup())

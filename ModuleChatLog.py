@@ -1,10 +1,8 @@
 #chat log module
-import json
 from Module import Module
 from fastapi import APIRouter
 from EventHandler import EventHandler
 from twitchAPI.chat import ChatMessage
-import sqlite3
 import logging
 
 class cmessage():
@@ -32,15 +30,9 @@ class ChatLog(Module):
 
 #data: ChatMessage
     def on_message(self, data: ChatMessage):
-        #messages.append(f"{data.user.name}: {data.text}")
-        #logging.info(f'{self.name}: {data.user.name}: {data.text}')
-        data.sent_timestamp
         message = cmessage(data.id, data.user.name, data.text, data.sent_timestamp)
         messages.append(message)
-        db = sqlite3.connect("database.db")
-        cursor = db.cursor()
-        cursor.execute(f'INSERT INTO "main"."Messages" ("TwitchID", "UserName", "Message", "UnixTimeStamp") VALUES ("{data.id}", "{data.user.name}", "{data.text}", "{data.sent_timestamp}")')
-        db.commit()
-        logging.info(message)
+        logging.info(f'{self.name}: {data.user.name}: {data.text}')
+        self.event_Handler.DBConn.AddMessage(data)
 
 

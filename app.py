@@ -1,16 +1,18 @@
 import json
 import os
 import sqlite3
+from Databaseconn import Databaseconn
 from EventHandler import EventHandler
 from ModuleChatLog import ChatLog
-import TwitchAPIConn
-import asyncio
+from ModuleBanLog import BanLog
+import TwitchApiConn
 import logging
 
 from fastapi import FastAPI
 import uvicorn
 from threading import Thread
 from ModuleChatLog import router as chat_log_router
+
 
 channel = ""
 clientID = ""
@@ -64,19 +66,19 @@ def start_twitch():
     #load config file
     with open("config.json", "r") as f:
         config = json.load(f)
-    
-    channel = config["channel"]
+        
     clientID = config["clientID"]
     clientSecret = config["clientSecret"]
+    channel = config["channel"]
     
     logging.info ("checking for database file...")
     # Check if database file exists
-    if not os.path.exists("database.db"):
+    if not os.path.exists(f"{channel}.db"):
         logging.warning("Database file not found. Creating new file...")
         # Create a new database file
-        conn = sqlite3.connect("database.db")
+        conn = sqlite3.connect(f"{channel}.db")
         conn.close()
-        logging.warning("Database file created. as database.db")
+        logging.warning(f"Database file created. as {channel}.db")
     else:
         logging.info("Database file found.")
     
@@ -86,20 +88,32 @@ def start_twitch():
     # run app
     # create chat log module
     chatLog = ChatLog(eventHandler)
+    banLog = BanLog(eventHandler)
+    
     eventHandler.AddModule(chatLog)
+    eventHandler.AddModule(banLog)
+    
+    dbconn = Databaseconn(eventHandler, channel)
+    
+    eventHandler.assign_to_DBConn(dbconn)
     
     # connect to twitch
-    TwitchAPIConn.run(channel, clientID, clientSecret, eventHandler)
+    TwitchApiConn.run(
+        clientID, clientSecret, eventHandler)
+    #TwitchEventSubConn.run(clientID, clientSecret, eventHandler)
+
+
 if __name__ == "__main__":
     
     # Run FastAPI server in a separate thread
-    fastapi_thread = Thread(target=start_fastapi)
-    fastapi_thread.start()
+    #fastapi_thread = Thread(target=start_fastapi)
+    #fastapi_thread.start()
     
     # run twitch bot in separate thread
     twitch_thread = Thread(target=start_twitch)
     twitch_thread.start()
     
+    #fastapi_thread.join()
     twitch_thread.join()
-    fastapi_thread.join()
+    
     
