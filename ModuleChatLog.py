@@ -6,7 +6,11 @@ from twitchAPI.chat import ChatMessage
 import logging
 
 class cmessage():
-    def __init__(self, id: str, user: str, text: str, timestamp: int):
+    def __init__(self,
+                 id: str,
+                 user: str,
+                 text: str,
+                 timestamp: int):
         self.id = id
         self.user = user
         self.text = text
