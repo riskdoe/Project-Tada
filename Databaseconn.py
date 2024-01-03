@@ -63,5 +63,5 @@ class Databaseconn():
         ban = Bandata(data.event.user_id, data.event.user_name, data.event.moderator_user_id, data.event.moderator_user_name, data.event.reason, data.event.banned_at, data.event.ends_at, data.event.is_permanent)
         #TODO: This is gonna fucking crash 100%
         self.cursor.execute(f'INSERT INTO "BanLog" ("BannedUserID", "BannedUserName", "ModeratorID", "ModeratorUser", "BanReason", "BanTime", "IsPermanent") VALUES ("{ban.userID}", "{ban.userName}", "{ban.moderatorID}", "{ban.moderatorName}", "{ban.reason}", "{ban.bantime}", "{ban.permanent}")')
-        #print (f"{ban.userID} {ban.userName} {ban.moderatorID} {ban.moderatorName} {ban.reason} {ban.bantime} {ban.permanent}")
+        logging.debug(f"attempted to insert ban into database: {ban}")
         self.db.commit()
