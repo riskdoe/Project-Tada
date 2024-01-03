@@ -23,8 +23,6 @@ class Module():
         pass
     
     # send message
-    #its likely we can use API to send messages so this will need to be looked at later
-    #for now we will just send it to the irc
     def send_message(self, message):
         self.event_Handler.send_message(message)
     
@@ -142,61 +140,6 @@ class Module():
     def on_channel_poll_end(self, data):
         pass
     
-    # on channel prediction begin
-    # used when a prediction is started on the channel
-    # ref: https://pytwitchapi.dev/en/stable/modules/twitchAPI.eventsub.base.html#twitchAPI.eventsub.base.EventSubBase.listen_channel_prediction_begin
-    def on_channel_prediction_begin(self, data):
-        pass
-    
-    # on channel prediction progress(votes)
-    # used when a prediction is updated on the channel (votes)
-    # ref: https://pytwitchapi.dev/en/stable/modules/twitchAPI.eventsub.base.html#twitchAPI.eventsub.base.EventSubBase.listen_channel_prediction_progress
-    def on_channel_prediction_progress(self, data):
-        pass
-    
-    # on channel prediction lock
-    # used when a prediction is locked on the channel
-    # ref: https://pytwitchapi.dev/en/stable/modules/twitchAPI.eventsub.base.html#twitchAPI.eventsub.base.EventSubBase.listen_channel_prediction_lock
-    def on_channel_prediction_lock(self, data):
-        pass
-    
-    # on channel prediction end
-    # used when a prediction is ended on the channel
-    # ref: https://pytwitchapi.dev/en/stable/modules/twitchAPI.eventsub.base.html#twitchAPI.eventsub.base.EventSubBase.listen_channel_prediction_end
-    def on_channel_prediction_end(self, data):
-        pass
-        
-    # on goal begin
-    # ref: https://pytwitchapi.dev/en/stable/modules/twitchAPI.eventsub.base.html#twitchAPI.eventsub.base.EventSubBase.listen_goal_begin
-    def on_goal_begin(self, data):
-        pass
-    
-    
-    # on goal progress
-    # ref : https://pytwitchapi.dev/en/stable/modules/twitchAPI.eventsub.base.html#twitchAPI.eventsub.base.EventSubBase.listen_goal_progress
-    def on_goal_progress(self, data):
-        pass
-    
-    # on goal end
-    # ref : https://pytwitchapi.dev/en/stable/modules/twitchAPI.eventsub.base.html#twitchAPI.eventsub.base.EventSubBase.listen_goal_end
-    def on_goal_end(self, data):
-        pass
-    
-    # on hype train begin
-    # ref: https://pytwitchapi.dev/en/stable/modules/twitchAPI.eventsub.base.html#twitchAPI.eventsub.base.EventSubBase.listen_hype_train_begin
-    def on_hype_train_begin(self, data):
-        pass
-    
-    # on hype train progress
-    # ref: https://pytwitchapi.dev/en/stable/modules/twitchAPI.eventsub.base.html#twitchAPI.eventsub.base.EventSubBase.listen_hype_train_progress
-    def on_hype_train_progress(self, data):
-        pass
-    
-    # on hype train end
-    # ref: https://pytwitchapi.dev/en/stable/modules/twitchAPI.eventsub.base.html#twitchAPI.eventsub.base.EventSubBase.listen_hype_train_end
-    def on_hype_train_end(self, data):
-        pass
-    
     # on stream online
     # ref: https://pytwitchapi.dev/en/stable/modules/twitchAPI.eventsub.base.html#twitchAPI.eventsub.base.EventSubBase.listen_stream_online
     def on_stream_online(self, data):
@@ -214,6 +157,8 @@ class Module():
     
     # on shoutout received
     # ref: https://pytwitchapi.dev/en/stable/modules/twitchAPI.eventsub.base.html#twitchAPI.eventsub.base.EventSubBase.listen_channel_shoutout_receive
+    def on_shoutout_received(self, data):
+        pass
     
     # on channel chat clear
     # ref: https://pytwitchapi.dev/en/stable/modules/twitchAPI.eventsub.base.html#twitchAPI.eventsub.base.EventSubBase.listen_channel_chat_clear
