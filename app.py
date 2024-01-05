@@ -95,6 +95,7 @@ def start_twitch():
     
     dbconn = Databaseconn(eventHandler, channel)
     
+    eventHandler.assign_to_twitch(TwitchApiConn)
     eventHandler.assign_to_DBConn(dbconn)
     
     # connect to twitch
