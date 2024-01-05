@@ -30,8 +30,14 @@ class EventHandler:
         # print(f'{msg.user.name}: {msg.text}')
         for Module in self.Modules:
             Module.on_message(data)
+            
+    # send message
+    def send_message(self, message):
+        self.TwitchAPI.send_message(message)
         
-    
+    # send whisper
+    def send_whisper(self, user, message):
+        self.TwitchAPI.send_whisper(user, message)
     
     #------- event sub events -------   
     def on_channel_update(self, data):
