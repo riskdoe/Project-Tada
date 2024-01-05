@@ -84,7 +84,7 @@ async def on_ready(ready_event: EventData):
 async def on_message(msg: ChatMessage):
     # logging.info(f'{msg.user.name}: {msg.text}')
     #print(EVENT_HANDLER)
-    EVENT_HANDLER.on_message(data = msg)
+    await EVENT_HANDLER.on_message(data = msg)
     pass
 
 #we place all the on events for the event sub here

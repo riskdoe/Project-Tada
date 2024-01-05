@@ -33,10 +33,12 @@ class ChatLog(Module):
         super().__init__("ChatLog" , eventHandler)
 
 #data: ChatMessage
-    def on_message(self, data: ChatMessage):
+    async def on_message(self, data: ChatMessage):
         message = cmessage(data.id, data.user.name, data.text, data.sent_timestamp)
         messages.append(message)
         logging.info(f'{self.name}: {data.user.name}: {data.text}')
+        if(data.user.name == "riskypoi"):
+            await self.event_Handler.send_message("Hello, RiskyPoi")
         self.event_Handler.DBConn.AddMessage(data)
 
 

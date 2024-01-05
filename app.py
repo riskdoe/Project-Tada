@@ -100,7 +100,9 @@ def start_twitch():
     
     # connect to twitch
     TwitchApiConn.run(
-        clientID, clientSecret, eventHandler)
+        clientID,
+        clientSecret,
+        eventHandler)
     #TwitchEventSubConn.run(clientID, clientSecret, eventHandler)
 
 

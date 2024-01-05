@@ -1,3 +1,4 @@
+import asyncio
 from Module import Module
 from twitchAPI.object.eventsub import ChannelFollowEvent, ChannelBanEvent
 from twitchAPI.chat import ChatMessage
@@ -26,123 +27,126 @@ class EventHandler:
     #------- chat bot events -------  
         
     # on_message
-    def on_message(self, data: ChatMessage):
+    async def on_message(self, data: ChatMessage):
         # print(f'{msg.user.name}: {msg.text}')
         for Module in self.Modules:
-            Module.on_message(data)
+            await Module.on_message(data)
             
     # send message
-    def send_message(self, message):
-        self.TwitchAPI.send_message(message)
+    async def send_message(self, message):
+        await self.TwitchAPI.send_message(message)
         
     # send whisper
-    def send_whisper(self, user, message):
-        self.TwitchAPI.send_whisper(user, message)
+    async def send_whisper(self, user, message):
+        await self.TwitchAPI.send_whisper(user, message)
+        
+        
+    #------- API events -------
     
     #------- event sub events -------   
-    def on_channel_update(self, data):
+    async def on_channel_update(self, data):
         for Module in self.Modules:
-            Module.on_channel_update(data)    
+            await Module.on_channel_update(data)    
         
     # on_follow
-    def on_follow(self, data: ChannelFollowEvent):
+    async def on_follow(self, data: ChannelFollowEvent):
         #print(f'{data.event.user_name} followed, called from EventHandler')
         for Module in self.Modules:
-            Module.on_follow(data)    
+            await Module.on_follow(data)    
     
-    def on_subscribe(self, data):
+    async def on_subscribe(self, data):
         for Module in self.Modules:
-            Module.on_subscribe(data)    
+            await Module.on_subscribe(data)    
     
-    def on_subscription_gift(self, data):
+    async def on_subscription_gift(self, data):
         for Module in self.Modules:
-            Module.on_subscription_gift(data)
+            await Module.on_subscription_gift(data)
     
-    def on_subscription_message(self, data):
+    async def on_subscription_message(self, data):
         for Module in self.Modules:
-            Module.on_subscription_message(data)
+            await Module.on_subscription_message(data)
     
-    def on_cheer(self, data):
+    async def on_cheer(self, data):
         for Module in self.Modules:
-            Module.on_cheer(data)
+            await Module.on_cheer(data)
     
-    def on_raid(self, data):
+    async def on_raid(self, data):
         for Module in self.Modules:
-            Module.on_raid(data)
+            await Module.on_raid(data)
     
     # on_ban
-    def on_ban(self, data: ChannelBanEvent):
+    async def on_ban(self, data: ChannelBanEvent):
         for Module in self.Modules:
-            Module.on_ban(data)
+            await Module.on_ban(data)
     
-    def on_unban(self, data):
+    async def on_unban(self, data):
         for Module in self.Modules:
-            Module.on_unban(data)
+            await Module.on_unban(data)
     
-    def on_moderator_add(self, data):
+    async def on_moderator_add(self, data):
         for Module in self.Modules:
-            Module.on_moderator_add(data)
+            await Module.on_moderator_add(data)
     
-    def on_moderator_remove(self, data):
+    async def on_moderator_remove(self, data):
         for Module in self.Modules:
-            Module.on_moderator_remove(data)
+            await Module.on_moderator_remove(data)
     
-    def on_channel_points_custom_reward_add(self, data):
+    async def on_channel_points_custom_reward_add(self, data):
         for Module in self.Modules:
-            Module.on_channel_points_redeem_reward_add(data)
+            await Module.on_channel_points_redeem_reward_add(data)
     
-    def on_channel_points_custom_reward_update(self, data):
+    async def on_channel_points_custom_reward_update(self, data):
         for Module in self.Modules:
-            Module.on_channel_points_redeem_reward_update(data)
+            await Module.on_channel_points_redeem_reward_update(data)
     
-    def on_channel_points_custom_reward_remove(self, data):
+    async def on_channel_points_custom_reward_remove(self, data):
         for Module in self.Modules:
-            Module.on_channel_points_redeem_reward_remove(data)
+            await Module.on_channel_points_redeem_reward_remove(data)
     
-    def on_channel_points_reward_redeem(self, data):
+    async def on_channel_points_reward_redeem(self, data):
         for Module in self.Modules:
-            Module.on_channel_points_redeem(data)
+            await Module.on_channel_points_redeem(data)
     
-    def on_channel_points_reward_redeem_update(self, data):
+    async def on_channel_points_reward_redeem_update(self, data):
         for Module in self.Modules:
-            Module.on_channel_points_redeem_update(data)
+            await Module.on_channel_points_redeem_update(data)
     
-    def on_poll_begin(self, data):
+    async def on_poll_begin(self, data):
         for Module in self.Modules:
-            Module.on_channel_poll_begin(data)
+            await Module.on_channel_poll_begin(data)
     
-    def on_poll_progress(self, data):
+    async def on_poll_progress(self, data):
         for Module in self.Modules:
-            Module.on_channel_poll_progress(data)
+            await Module.on_channel_poll_progress(data)
     
-    def on_poll_end(self, data):
+    async def on_poll_end(self, data):
         for Module in self.Modules:
-            Module.on_channel_poll_end(data)
+            await Module.on_channel_poll_end(data)
     
-    def on_stream_online(self, data):
+    async def on_stream_online(self, data):
         for Module in self.Modules:
-            Module.on_stream_online(data)
+            await Module.on_stream_online(data)
     
-    def on_stream_offline(self, data):
+    async def on_stream_offline(self, data):
         for Module in self.Modules:
-            Module.on_stream_offline(data)
+            await Module.on_stream_offline(data)
             
-    def on_shoutout_create(self, data):
+    async def on_shoutout_create(self, data):
         for Module in self.Modules:
-            Module.on_shoutout_create(data)
+            await Module.on_shoutout_create(data)
     
-    def on_shoutout_recieve(self, data):
+    async def on_shoutout_recieve(self, data):
         for Module in self.Modules:
-            Module.on_shoutout_received(data)
+            await Module.on_shoutout_received(data)
     
-    def on_chat_clear(self, data):
+    async def on_chat_clear(self, data):
         for Module in self.Modules:
-            Module.on_channel_chat_clear(data)
+            await Module.on_channel_chat_clear(data)
     
-    def on_chat_clear_user_messages(self, data):
+    async def on_chat_clear_user_messages(self, data):
         for Module in self.Modules:
-            Module.on_channel_chat_clear_user_messages(data)
+            await Module.on_channel_chat_clear_user_messages(data)
     
-    def on_chat_delete_messages(self, data):
+    async def on_chat_delete_messages(self, data):
         for Module in self.Modules:
-            Module.on_channel_chat_message_delete(data)
+            await Module.on_channel_chat_message_delete(data)
