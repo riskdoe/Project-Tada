@@ -31,14 +31,13 @@ def get_messages():
 class ChatLog(Module):
     def __init__(self, eventHandler: EventHandler):
         super().__init__("ChatLog" , eventHandler)
+        logging.info("ChatLog module loaded")
 
 #data: ChatMessage
     async def on_message(self, data: ChatMessage):
         message = cmessage(data.id, data.user.name, data.text, data.sent_timestamp)
         messages.append(message)
         logging.info(f'{self.name}: {data.user.name}: {data.text}')
-        if(data.user.name == "riskypoi"):
-            await self.event_Handler.send_message("Hello, RiskyPoi")
         self.event_Handler.DBConn.AddMessage(data)
 
 
