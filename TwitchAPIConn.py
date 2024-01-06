@@ -48,10 +48,6 @@ TARGET_SCOPE = [AuthScope.CHAT_READ,
                 AuthScope.CHANNEL_MODERATE]
 
 app = FastAPI()
-
-
-#assign self to Event handler #TODO: finish event handler
-
     
 @app.route('/login')
 def login(self):
@@ -77,13 +73,9 @@ async def login_confirm():
 async def on_ready(ready_event: EventData):
     # connect to channel
     await ready_event.chat.join_room(HOST_CHANNEL)
-    # inform the streamer we are connected
-    #await ready_event.chat.send_message(TARGET_CHANNEL, f'Connected to {TARGET_CHANNEL}')
     
 #will be called when ever a message is sent to target channel
 async def on_message(msg: ChatMessage):
-    # logging.info(f'{msg.user.name}: {msg.text}')
-    #print(EVENT_HANDLER)
     await EVENT_HANDLER.on_message(data = msg)
     pass
 
@@ -91,110 +83,108 @@ async def on_message(msg: ChatMessage):
 
 #on channel update
 async def on_channel_update(data: ChannelUpdateEvent):
-    EVENT_HANDLER.on_channel_update(data)
+    await EVENT_HANDLER.on_channel_update(data)
 
 #on follow events
 async def on_follow(data: ChannelFollowEvent):
-    # our event happened, lets do things with the data we got!
-    #print(f'{data.event.user_name} now follows {data.event.broadcaster_user_name}!')
-    EVENT_HANDLER.on_follow(data)
+    await EVENT_HANDLER.on_follow(data)
 
 #on sub events
 async def on_sub(data: ChannelSubscribeEvent):
-    EVENT_HANDLER.on_subscribe(data)
+    await EVENT_HANDLER.on_subscribe(data)
     
 #on sub gift
 async def on_sub_gift(data: ChannelSubscriptionGiftEvent):
-    EVENT_HANDLER.on_sub_gift(data)
+    await EVENT_HANDLER.on_sub_gift(data)
     
 #on sub message 
 async def on_sub_message(data: ChannelSubscriptionMessageEvent):
-    EVENT_HANDLER.on_sub_message(data)
+    await EVENT_HANDLER.on_sub_message(data)
     
 #on cheer
 async def on_cheer(data: ChannelCheerEvent):
-    EVENT_HANDLER.on_cheer(data)
+    await EVENT_HANDLER.on_cheer(data)
 
 #on raid
 async def on_raid(data: ChannelRaidEvent):
-    EVENT_HANDLER.on_raid(data)
+    await EVENT_HANDLER.on_raid(data)
 
 #on ban events
 async def on_ban(data: ChannelBanEvent):
-    EVENT_HANDLER.on_ban(data)
+    await EVENT_HANDLER.on_ban(data)
 
 #on unban events
 async def on_unban(data: ChannelUnbanEvent):
-    EVENT_HANDLER.on_unban(data)
+    await EVENT_HANDLER.on_unban(data)
 
 # on moderator add
 async def on_moderator_add(data: ChannelModeratorAddEvent):
-    EVENT_HANDLER.on_moderator_add(data)
+    await EVENT_HANDLER.on_moderator_add(data)
     
 # on moderator remove
 async def on_moderator_remove(data: ChannelModeratorRemoveEvent):
-    EVENT_HANDLER.on_moderator_remove(data)
+    await EVENT_HANDLER.on_moderator_remove(data)
 
 #on channel points reward add
 async def on_channel_points_reward_add(data: ChannelPointsCustomRewardAddEvent):
-    EVENT_HANDLER.on_channel_points_reward_add(data)
+    await EVENT_HANDLER.on_channel_points_reward_add(data)
     
 #on channel points reward update
 async def on_channel_points_reward_update(data: ChannelPointsCustomRewardUpdateEvent):
-    EVENT_HANDLER.on_channel_points_reward_update(data)
+    await EVENT_HANDLER.on_channel_points_reward_update(data)
     
 
 #on channel points reward remove
 async def on_channel_points_reward_remove(data: ChannelPointsCustomRewardRemoveEvent):
-    EVENT_HANDLER.on_channel_points_reward_remove(data)
+    await EVENT_HANDLER.on_channel_points_reward_remove(data)
 
 #on channel points reward redeem
 async def on_channel_points_reward_redeem(data: ChannelPointsCustomRewardRedemptionAddEvent):
-    EVENT_HANDLER.on_channel_points_reward_redeem(data)
+    await EVENT_HANDLER.on_channel_points_reward_redeem(data)
 
 #on channel points reward redeem update
 async def on_channel_points_reward_redeem_update(data: ChannelPointsCustomRewardRedemptionUpdateEvent):
-    EVENT_HANDLER.on_channel_points_reward_redeem_update(data)
+    await EVENT_HANDLER.on_channel_points_reward_redeem_update(data)
     
 #on poll begin
 async def on_poll_begin(data: ChannelPollBeginEvent):
-    EVENT_HANDLER.on_poll_begin(data)
+    await EVENT_HANDLER.on_poll_begin(data)
 
 #on poll progress
 async def on_poll_progress(data: ChannelPollProgressEvent):
-    EVENT_HANDLER.on_poll_progress(data)
+    await EVENT_HANDLER.on_poll_progress(data)
     
 #on poll end
 async def on_poll_end(data: ChannelPollEndEvent):
-    EVENT_HANDLER.on_poll_end(data)
+    await EVENT_HANDLER.on_poll_end(data)
 
 #stream online
 async def on_stream_online(data: StreamOnlineEvent):
-    EVENT_HANDLER.on_stream_online(data)
+    await EVENT_HANDLER.on_stream_online(data)
 
 #stream offline
 async def on_stream_offline(data: StreamOfflineEvent):
-    EVENT_HANDLER.on_stream_offline(data)
+    await EVENT_HANDLER.on_stream_offline(data)
 
 #on shoutout create
 async def on_shoutout_create(data: ChannelShoutoutCreateEvent):
-    EVENT_HANDLER.on_shoutout_create(data)
+    await EVENT_HANDLER.on_shoutout_create(data)
     
 #on shoutout recieve
 async def on_shoutout_recieve(data: ChannelShoutoutReceiveEvent):
-    EVENT_HANDLER.on_shoutout_recieve(data)
+    await EVENT_HANDLER.on_shoutout_recieve(data)
 
 #on ChatClear
 async def on_chat_clear(data: ChannelChatClearEvent):
-    EVENT_HANDLER.on_chat_clear(data)
+    await EVENT_HANDLER.on_chat_clear(data)
     
 #on ChatClear usermessages
 async def on_chat_clear_user_messages(data: ChannelChatClearUserMessagesEvent):
-    EVENT_HANDLER.on_chat_clear_user_messages(data)
+    await EVENT_HANDLER.on_chat_clear_user_messages(data)
 
 #on chat delete messages
 async def on_chat_delete_messages(data: ChannelChatMessageDeleteEvent):
-    EVENT_HANDLER.on_chat_delete_messages(data)
+    await EVENT_HANDLER.on_chat_delete_messages(data)
 
 #=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=
 #events to be called
@@ -241,18 +231,10 @@ async def create_command(command: str, handler):
 
 #=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=
 
-async def test_command(cmd: ChatCommand):
-    if len(cmd.parameter) == 0:
-        await cmd.reply('you did not tell me what to reply with')
-    else:
-        await cmd.reply(f'{cmd.user.name}: {cmd.parameter}')
-
-
 async def twitch_setup():
     global TWITCH, AUTH
     global HOST_CHANNEL, HOST_CHANNEL_ID
     global CHAT
-    #logging.info(APP_ID)
     
     TWITCH = await Twitch(APP_ID, APP_SECRET)
     AUTH = UserAuthenticator(TWITCH, TARGET_SCOPE)
@@ -270,8 +252,6 @@ async def twitch_setup():
     
     CHAT.register_event(ChatEvent.READY, on_ready)
     CHAT.register_event(ChatEvent.MESSAGE, on_message)
-    
-    await create_command('test', test_command)
     
     #start chat
     CHAT.start()
@@ -331,6 +311,4 @@ def run( clientID, clientSecret, EventHandler: EventHandler):
     EVENT_HANDLER = EventHandler
     
     logging.info("starting twitch chat connection")
-    #logging.info("app id: " + APP_ID)
-    #logging.info("app secret: " + APP_SECRET)
     asyncio.run(twitch_setup())
