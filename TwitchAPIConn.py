@@ -223,7 +223,7 @@ async def send_whisper(user: str, message: str):
 #=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=
 
 #create command
-async def create_command(command: str, handler):
+def add_command(command: str, handler):
         #commands
     CHAT.register_command(command, handler)
     
@@ -262,6 +262,12 @@ async def twitch_setup():
     # create eventsub websocket for all end points and send them to eventhandler
     eventsub = EventSubWebsocket(TWITCH)
     eventsub.start()
+    
+    #add all the commands
+    commands = EVENT_HANDLER.Get_commands()
+    
+    for command in commands:
+        add_command(command, commands[command])
     
     #add events. these will be send over to event handler
     await eventsub.listen_channel_update_v2(user.id, on_channel_update)

@@ -6,6 +6,7 @@ from twitchAPI.chat import ChatMessage
 class EventHandler:
     TwitchAPI = None
     DBConn = None
+    commands = {}
     Modules: list[Module] = []
     counter = 1
 
@@ -22,6 +23,7 @@ class EventHandler:
     #add module
     def AddModule(self, Module: Module):
         self.Modules.append(Module)
+    
 
       
     #------- chat bot events -------  
@@ -40,8 +42,15 @@ class EventHandler:
     async def send_whisper(self, user, message):
         await self.TwitchAPI.send_whisper(user, message)
         
+    def Get_commands(self):
+        return self.commands
+        
+    def Add_command(self, command, function):
+        self.commands[command] = function
         
     #------- API events -------
+    
+    
     
     #------- event sub events -------   
     async def on_channel_update(self, data):

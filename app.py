@@ -5,6 +5,7 @@ from Databaseconn import Databaseconn
 from EventHandler import EventHandler
 from ModuleChatLog import ChatLog
 from ModuleBanLog import BanLog
+from ModuleCommandHanlder import CommandHandler
 import TwitchApiConn
 import logging
 
@@ -89,9 +90,11 @@ def start_twitch():
     # create chat log module
     chatLog = ChatLog(eventHandler)
     banLog = BanLog(eventHandler)
+    commandHandler = CommandHandler(eventHandler)
     
     eventHandler.AddModule(chatLog)
     eventHandler.AddModule(banLog)
+    eventHandler.AddModule(commandHandler)
     
     dbconn = Databaseconn(eventHandler, channel)
     
@@ -103,6 +106,8 @@ def start_twitch():
         clientID,
         clientSecret,
         eventHandler)
+    
+    
     #TwitchEventSubConn.run(clientID, clientSecret, eventHandler)
 
 
