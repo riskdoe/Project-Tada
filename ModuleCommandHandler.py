@@ -2,9 +2,11 @@ import asyncio
 from Module import Module
 from EventHandler import EventHandler
 from twitchAPI.chat import ChatCommand
+from twitchAPI.chat.middleware import UserRestriction as UsrRestriction
 import logging
 
 EVENTHANDLER = None
+PERMITTED_USERS:list[str] = ["RiskyPoi","LilacsBlooms"]
 
 
 class CommandHandler(Module):
@@ -45,6 +47,7 @@ class CommandHandler(Module):
                 return
             self.basic_commands[param1] = param2
             EVENTHANDLER.TwitchAPI.CHAT.register_command(param1, self.basic_handler)
+            EVENTHANDLER.DBConn.AddBasicCommand(param1, param2)
             await EVENTHANDLER.send_message(f"Command {param1} added")
             logging.info(f"CommandHandler.add_command: Params: '{param1}' || '{param2}'")
 
@@ -58,6 +61,7 @@ class CommandHandler(Module):
                 await EVENTHANDLER.send_message("Command not found")
             else:
                 EVENTHANDLER.TwitchAPI.CHAT.unregister_command(cmd.parameter)
+                EVENTHANDLER.DBConn.RemoveBasicCommand(cmd.parameter)
                 await EVENTHANDLER.send_message(f"Command {cmd.parameter} removed")
             logging.info(f"CommandHandler.remove_command: Params {cmd.parameter}")
 
@@ -72,9 +76,15 @@ class CommandHandler(Module):
                 return
             param1 = res[0]
             param2 = res[1]
+            if param1 not in self.basic_commands:
+                await EVENTHANDLER.send_message("Command not found")
+                return
             self.basic_commands[param1] = param2
+            EVENTHANDLER.DBConn.EditBasicCommand(param1, param2)
             logging.info(f"CommandHandler.edit_command: Params {cmd.parameter}")
             await EVENTHANDLER.send_message(f"Command {param1} edited")
+            
+
 #=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=
 
     
@@ -92,7 +102,20 @@ class CommandHandler(Module):
         self.basic_commands = {}
         for command in self.commands:
             logging.info(f"CommandHandler: Added command: {command}")
-            eventHandler.Add_command(command, self.commands[command])
+            if (command == "add_command" or command == "remove_command" or command == "edit_command"):
+                EVENTHANDLER.TwitchAPI.CHAT.register_command(
+                    command,
+                    self.commands[command],
+                    command_middleware=[UsrRestriction(allowed_users=PERMITTED_USERS)])
+            else:
+                eventHandler.Add_command(command, self.commands[command])
+        
+        for basic_command in EVENTHANDLER.DBConn.GetBasicCommands():
+            logging.info(f"CommandHandler: Added basic command: {basic_command}")
+            self.basic_commands[basic_command[0]] = basic_command[1]
+            EVENTHANDLER.TwitchAPI.CHAT.register_command(basic_command[0], self.basic_handler)
+
+            
         logging.info("CommandHandler module loaded")
 
 

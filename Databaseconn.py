@@ -52,9 +52,11 @@ class Databaseconn():
         self.db.commit()
         self.cursor.execute('CREATE TABLE IF NOT EXISTS "BanLog" ("ID" INTEGER NOT NULL, "BannedUserID" TEXT NOT NULL, "BannedUserName" TEXT NOT NULL, "ModeratorID" TEXT NOT NULL, "ModeratorUser" TEXT NOT NULL,"BanReason" TEXT NOT NULL, "BanTime" INTEGER NOT NULL,"IsPermanent" INTEGER NOT NULL DEFAULT 0, PRIMARY KEY("ID" AUTOINCREMENT))')
         self.db.commit()
-        #TODO: add basic command storeage
+        self.cursor.execute('CREATE TABLE IF NOT EXISTS "BasicCommands" ("ID" INTEGER NOT NULL, "Alias" TEXT NOT NULL, "Return" TEXT NOT NULL, PRIMARY KEY("ID" AUTOINCREMENT))')
+        self.db.commit()
+        #TODO: add basic command storage
         
-    def AddMessage(self, data):
+    def AddMessage(self, data: ChatMessage):
         message = cmessage(data.id, data.user.name, data.text, data.sent_timestamp)
         self.cursor.execute(f'INSERT INTO "main"."Messages" ("TwitchID", "UserName", "Message", "UnixTimeStamp") VALUES ("{data.id}", "{data.user.name}", "{data.text}", "{data.sent_timestamp}")')
         self.db.commit()
@@ -66,7 +68,22 @@ class Databaseconn():
         self.cursor.execute(f'INSERT INTO "BanLog" ("BannedUserID", "BannedUserName", "ModeratorID", "ModeratorUser", "BanReason", "BanTime", "IsPermanent") VALUES ("{ban.userID}", "{ban.userName}", "{ban.moderatorID}", "{ban.moderatorName}", "{ban.reason}", "{ban.bantime}", "{ban.permanent}")')
         logging.debug(f"attempted to insert ban into database: {ban}")
         self.db.commit()
-        
-    #TODO: add "add to basic commands"
-    #TODO: add "remove from basic commands"
-    #TODO: add "edit basic commands"
+
+    def GetBasicCommands(self):
+        commands = []
+        self.cursor.execute('SELECT "Alias", "Return" FROM "BasicCommands"')
+        commands = self.cursor.fetchall()
+        return commands
+
+    def AddBasicCommand(self, Alias:str, Output:str):
+        self.cursor.execute(f'INSERT INTO "BasicCommands" ("Alias", "Return") VALUES ("{Alias}", "{Output}")')
+        self.db.commit()
+
+    def RemoveBasicCommand(self, Alias:str):
+        self.cursor.execute(f'DELETE FROM "BasicCommands" WHERE Alias="{Alias}"')
+        self.db.commit()
+
+    def EditBasicCommand(self, Alias:str, Output:str):
+        logging.info(f"Databaseconn.EditBasicCommand: Alias: {Alias} || Output: {Output}")
+        self.cursor.execute(f'UPDATE "BasicCommands" SET "Return"="{Output}" WHERE Alias="{Alias}"')
+        self.db.commit()

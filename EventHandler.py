@@ -1,11 +1,12 @@
 import asyncio
 from Module import Module
 from twitchAPI.object.eventsub import ChannelFollowEvent, ChannelBanEvent
-from twitchAPI.chat import ChatMessage
+from twitchAPI.chat import Chat, EventData, ChatMessage, ChatCommand
+from Databaseconn import Databaseconn
 
 class EventHandler:
     TwitchAPI = None
-    DBConn = None
+    DBConn: Databaseconn = None
     commands = {}
     Modules: list[Module] = []
     counter = 1

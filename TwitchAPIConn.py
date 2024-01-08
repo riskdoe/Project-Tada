@@ -233,6 +233,8 @@ def add_command(command: str, handler):
     CHAT.register_command(command, handler)
     
 
+async def handle_command_blocked( cmd: ChatCommand):
+    await cmd.reply(f'You are not allowed to use {cmd.name}!')
 
 #=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=
 
@@ -260,6 +262,7 @@ async def twitch_setup():
     
     #start chat
     CHAT.start()
+    CHAT.default_command_execution_blocked_handler = handle_command_blocked
     
     #test to see if we can run the websocket here
     user = await first(TWITCH.get_users())
