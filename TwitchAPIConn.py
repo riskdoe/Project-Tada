@@ -22,6 +22,11 @@ from EventHandler import EventHandler
 import asyncio
 import logging
 
+#modules
+from ModuleChatLog import ChatLog
+from ModuleBanLog import BanLog
+from ModuleCommandHandler import CommandHandler
+
 
 TWITCH: Twitch
 AUTH: UserAuthenticator
@@ -262,6 +267,16 @@ async def twitch_setup():
     # create eventsub websocket for all end points and send them to eventhandler
     eventsub = EventSubWebsocket(TWITCH)
     eventsub.start()
+    
+    # add modules
+    chatLog = ChatLog(EVENT_HANDLER)
+    banLog = BanLog(EVENT_HANDLER)
+    commandHandler = CommandHandler(EVENT_HANDLER)
+    
+    EVENT_HANDLER.AddModule(chatLog)
+    EVENT_HANDLER.AddModule(banLog)
+    EVENT_HANDLER.AddModule(commandHandler)
+    
     
     #add all the commands
     commands = EVENT_HANDLER.Get_commands()

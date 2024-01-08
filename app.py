@@ -3,9 +3,7 @@ import os
 import sqlite3
 from Databaseconn import Databaseconn
 from EventHandler import EventHandler
-from ModuleChatLog import ChatLog
-from ModuleBanLog import BanLog
-from ModuleCommandHanlder import CommandHandler
+
 import TwitchApiConn
 import logging
 
@@ -86,21 +84,11 @@ def start_twitch():
     # Create event handler
     
     eventHandler = EventHandler()
-    # run app
-    # create chat log module
-    chatLog = ChatLog(eventHandler)
-    banLog = BanLog(eventHandler)
-    commandHandler = CommandHandler(eventHandler)
-    
-    eventHandler.AddModule(chatLog)
-    eventHandler.AddModule(banLog)
-    eventHandler.AddModule(commandHandler)
-    
     dbconn = Databaseconn(eventHandler, channel)
-    
     eventHandler.assign_to_twitch(TwitchApiConn)
     eventHandler.assign_to_DBConn(dbconn)
     
+    # run app 
     # connect to twitch
     TwitchApiConn.run(
         clientID,
