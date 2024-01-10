@@ -50,7 +50,8 @@ TARGET_SCOPE = [AuthScope.CHAT_READ,
                 AuthScope.CHANNEL_READ_GOALS,
                 AuthScope.MODERATOR_MANAGE_SHOUTOUTS,
                 AuthScope.MODERATION_READ,
-                AuthScope.CHANNEL_MODERATE]
+                AuthScope.CHANNEL_MODERATE,
+                AuthScope.MODERATOR_MANAGE_BANNED_USERS]
 
 app = FastAPI()
     
@@ -223,6 +224,15 @@ async def send_message(message: str):
 async def send_whisper(user: str, message: str):
     target = await first(TWITCH.get_users(logins=[user]))
     await CHAT.send_whisper(HOST_CHANNEL_ID,target.id, message)
+    
+async def ban_user(user: str, reason: str):
+    target = await first(TWITCH.get_users(logins=[user]))
+    logging.info(f"banning user: {target}")
+    await TWITCH.ban_user(HOST_CHANNEL_ID, HOST_CHANNEL_ID, target.id, reason)
+
+async def unban_user(user: str):
+    target = await first(TWITCH.get_users(logins=[user]))
+    await TWITCH.unban_user(HOST_CHANNEL_ID, HOST_CHANNEL_ID, target.id)
     
     
 #=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=

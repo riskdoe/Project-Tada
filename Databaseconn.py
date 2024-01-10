@@ -1,7 +1,7 @@
 import sqlite3
 import logging
 from twitchAPI.chat import ChatMessage
-from twitchAPI.object.eventsub import ChannelBanEvent
+from twitchAPI.object.eventsub import ChannelBanEvent,ChannelUnbanEvent
 import datetime
 
 class cmessage():
@@ -41,6 +41,21 @@ class Bandata():
         
     def __str__(self):
         return f"{self.userName} was banned by {self.moderatorName} for {self.reason}"
+    
+class Unbandata():
+    def __init__(self,
+                 userID: str,
+                 userName: str,
+                 moderatorID: str,
+                 moderatorName: str,
+                ):
+        self.userID = userID
+        self.userName = userName
+        self.moderatorID = moderatorID 
+        self.moderatorName = moderatorName
+        
+    def __str__(self):
+        return f"{self.userName} was unbanned by {self.moderatorName}"
 
 class Databaseconn():
     def __init__(self, eventHandler, dbname: str):
@@ -52,10 +67,11 @@ class Databaseconn():
         self.db.commit()
         self.cursor.execute('CREATE TABLE IF NOT EXISTS "BanLog" ("ID" INTEGER NOT NULL, "BannedUserID" TEXT NOT NULL, "BannedUserName" TEXT NOT NULL, "ModeratorID" TEXT NOT NULL, "ModeratorUser" TEXT NOT NULL,"BanReason" TEXT NOT NULL, "BanTime" INTEGER NOT NULL,"IsPermanent" INTEGER NOT NULL DEFAULT 0, PRIMARY KEY("ID" AUTOINCREMENT))')
         self.db.commit()
+        self.cursor.execute('CREATE TABLE IF NOT EXISTS "UnBanLog" ("ID" INTEGER NOT NULL, "BannedUserID" TEXT NOT NULL, "BannedUserName" TEXT NOT NULL, "ModeratorID" TEXT NOT NULL, "ModeratorUser" TEXT NOT NULL, PRIMARY KEY("ID" AUTOINCREMENT))')
+        self.db.commit()
         self.cursor.execute('CREATE TABLE IF NOT EXISTS "BasicCommands" ("ID" INTEGER NOT NULL, "Alias" TEXT NOT NULL, "Return" TEXT NOT NULL, PRIMARY KEY("ID" AUTOINCREMENT))')
         self.db.commit()
-        #TODO: add basic command storage
-        
+
     def AddMessage(self, data: ChatMessage):
         message = cmessage(data.id, data.user.name, data.text, data.sent_timestamp)
         self.cursor.execute(f'INSERT INTO "main"."Messages" ("TwitchID", "UserName", "Message", "UnixTimeStamp") VALUES ("{data.id}", "{data.user.name}", "{data.text}", "{data.sent_timestamp}")')
@@ -64,9 +80,14 @@ class Databaseconn():
 
     def AddBan(self, data: ChannelBanEvent):
         ban = Bandata(data.event.user_id, data.event.user_name, data.event.moderator_user_id, data.event.moderator_user_name, data.event.reason, data.event.banned_at, data.event.ends_at, data.event.is_permanent)
-        #TODO: This is gonna fucking crash 100%
         self.cursor.execute(f'INSERT INTO "BanLog" ("BannedUserID", "BannedUserName", "ModeratorID", "ModeratorUser", "BanReason", "BanTime", "IsPermanent") VALUES ("{ban.userID}", "{ban.userName}", "{ban.moderatorID}", "{ban.moderatorName}", "{ban.reason}", "{ban.bantime}", "{ban.permanent}")')
         logging.debug(f"attempted to insert ban into database: {ban}")
+        self.db.commit()
+
+    def AddUnBan(self, data: ChannelUnbanEvent):
+        unban = Unbandata(data.event.user_id,data.event.user_name,data.event.moderator_user_id,data.event.moderator_user_name)
+        self.cursor.execute(f'INSERT INTO "UnBanLog" ("BannedUserID", "BannedUserName", "ModeratorID", "ModeratorUser") VALUES ("{unban.userID}", "{unban.userName}", "{unban.moderatorID}", "{unban.moderatorName}")')
+        logging.debug(f"attempted to insert unban into database: {unban}")
         self.db.commit()
 
     def GetBasicCommands(self):

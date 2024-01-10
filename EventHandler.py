@@ -51,6 +51,11 @@ class EventHandler:
         
     #------- API events -------
     
+    async def ban_user(self, user, reason):
+        await self.TwitchAPI.ban_user(user, reason)
+        
+    async def unban_user(self, user):
+        await self.TwitchAPI.unban_user(user)
     
     
     #------- event sub events -------   

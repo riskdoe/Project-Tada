@@ -6,12 +6,12 @@ from twitchAPI.chat.middleware import UserRestriction as UsrRestriction
 import logging
 
 EVENTHANDLER = None
-PERMITTED_USERS:list[str] = ["RiskyPoi","LilacsBlooms"]
+PERMITTED_USERS:list[str] = ["riskypoi","lilacsblooms"]
 
 
 class CommandHandler(Module):
-    async def help_command(self,cmd: ChatCommand):
-        await EVENTHANDLER.send_message("help command")
+#    async def help_command(self,cmd: ChatCommand):
+#        await EVENTHANDLER.send_message("help command")
 
     async def commands_list(self,cmd: ChatCommand):
         commandlist :str = ""
@@ -21,13 +21,37 @@ class CommandHandler(Module):
             commandlist += f"!{command} "
         await EVENTHANDLER.send_message(commandlist)
 
+    async def ban_command(self,cmd: ChatCommand):
+        logging.info(f"CommandHandler: {cmd.name} command called")
+        if len(cmd.parameter) == 0:
+            await EVENTHANDLER.send_message("Please provide User and reason")
+            return
+        res = cmd.parameter.split(' ', 1)
+        user = res[0]
+        Reason = res[1]
+        await EVENTHANDLER.ban_user(user, Reason)
+        logging.info(f"CommandHandler.ban_command: Params: '{user}' || '{Reason}'")
+        #this should get auto logged in sql table due to onban function
+    
+    async def unban_command(self,cmd: ChatCommand):
+        logging.info(f"CommandHandler: {cmd.name} command called")
+        if len(cmd.parameter) == 0:
+            await EVENTHANDLER.send_message("Please provide User")
+            return
+        if " " in cmd.parameter:
+            await EVENTHANDLER.send_message("Please provide only one User")
+            return
+        user = cmd.parameter
+        await EVENTHANDLER.unban_user(user)
+        logging.info(f"CommandHandler.unban_command: Params: '{user}'")
+        #this should get auto logged in sql table due to onban function
 
     #basic handler for basic response commands
     async def basic_handler(self, cmd: ChatCommand):
         output = self.basic_commands[cmd.name]
         logging.info(f"CommandHandler: {cmd.name} command called")
         await EVENTHANDLER.send_message(output)
-    
+
 #=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=
         
     #create commands for adding, removing, and editing commands
@@ -94,15 +118,23 @@ class CommandHandler(Module):
         global EVENTHANDLER
         EVENTHANDLER = eventHandler
         self.commands = {}
-        self.commands["help"] = self.help_command
+        #self.commands["help"] = self.help_command
         self.commands["commands"] = self.commands_list
         self.commands["add_command"] = self.add_command
         self.commands["remove_command"] = self.remove_command
         self.commands["edit_command"] = self.edit_command
+        self.commands["ban"] = self.ban_command
+        self.commands["unban"] = self.unban_command
+        
         self.basic_commands = {}
         for command in self.commands:
             logging.info(f"CommandHandler: Added command: {command}")
-            if (command == "add_command" or command == "remove_command" or command == "edit_command"):
+            if (   command == "add_command" 
+                or command == "remove_command" 
+                or command == "edit_command"
+                or command == "ban"
+                or command == "unban"
+                ):
                 EVENTHANDLER.TwitchAPI.CHAT.register_command(
                     command,
                     self.commands[command],
