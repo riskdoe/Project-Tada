@@ -251,6 +251,9 @@ def add_command(command: str, handler):
         #commands
     CHAT.register_command(command, handler)
     
+def remove_command(command: str):
+    CHAT.unregister_command(command)
+    
 
 async def handle_command_blocked( cmd: ChatCommand):
     await cmd.reply(f'You are not allowed to use {cmd.name}!')
@@ -294,11 +297,12 @@ async def twitch_setup():
     chatLog = ChatLog(EVENT_HANDLER)
     banLog = BanLog(EVENT_HANDLER)
     commandHandler = CommandHandler(EVENT_HANDLER)
+    miniGameHost = MinigameSystem(EVENT_HANDLER)
     
     EVENT_HANDLER.AddModule(chatLog)
     EVENT_HANDLER.AddModule(banLog)
     EVENT_HANDLER.AddModule(commandHandler)
-    
+    EVENT_HANDLER.AddModule(miniGameHost)
     
     #add all the commands
     commands = EVENT_HANDLER.Get_commands()
