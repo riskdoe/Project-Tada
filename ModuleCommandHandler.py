@@ -5,44 +5,39 @@ from twitchAPI.chat import ChatCommand
 from twitchAPI.chat.middleware import UserRestriction as UsrRestriction
 import logging
 
-EVENTHANDLER = None
-PERMITTED_USERS:list[str] = ["riskypoi","lilacsblooms"]
-
-
 class CommandHandler(Module):
 #    async def help_command(self,cmd: ChatCommand):
-#        await EVENTHANDLER.send_message("help command")
+#        await self.event_Handler.send_message("help command")
 
     async def commands_list(self,cmd: ChatCommand):
         commandlist :str = ""
-        for command in self.commands:
-            commandlist += f"!{command} "
+
         for command in self.basic_commands:
             commandlist += f"!{command} "
-        await EVENTHANDLER.send_message(commandlist)
+        await self.event_Handler.send_message(commandlist)
 
     async def ban_command(self,cmd: ChatCommand):
         logging.info(f"CommandHandler: {cmd.name} command called")
         if len(cmd.parameter) == 0:
-            await EVENTHANDLER.send_message("Please provide User and reason")
+            await self.event_Handler.send_message("Please provide User and reason")
             return
         res = cmd.parameter.split(' ', 1)
         user = res[0]
         Reason = res[1]
-        await EVENTHANDLER.ban_user(user, Reason)
+        await self.event_Handler.ban_user(user, Reason)
         logging.info(f"CommandHandler.ban_command: Params: '{user}' || '{Reason}'")
         #this should get auto logged in sql table due to onban function
     
     async def unban_command(self,cmd: ChatCommand):
         logging.info(f"CommandHandler: {cmd.name} command called")
         if len(cmd.parameter) == 0:
-            await EVENTHANDLER.send_message("Please provide User")
+            await self.event_Handler.send_message("Please provide User")
             return
         if " " in cmd.parameter:
-            await EVENTHANDLER.send_message("Please provide only one User")
+            await self.event_Handler.send_message("Please provide only one User")
             return
         user = cmd.parameter
-        await EVENTHANDLER.unban_user(user)
+        await self.event_Handler.unban_user(user)
         logging.info(f"CommandHandler.unban_command: Params: '{user}'")
         #this should get auto logged in sql table due to onban function
 
@@ -50,7 +45,7 @@ class CommandHandler(Module):
     async def basic_handler(self, cmd: ChatCommand):
         output = self.basic_commands[cmd.name]
         logging.info(f"CommandHandler: {cmd.name} command called")
-        await EVENTHANDLER.send_message(output)
+        await self.event_Handler.send_message(output)
 
 #=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=
         
@@ -58,55 +53,55 @@ class CommandHandler(Module):
     async def add_command(self,cmd: ChatCommand):
         logging.info(f"CommandHandler: {cmd.name} command called")
         if len(cmd.parameter) == 0:
-            await EVENTHANDLER.send_message("Please provide a command to add")
+            await self.event_Handler.send_message("Please provide a command to add")
         else:
             res = cmd.parameter.split(' ', 1)
             if len(res) != 2:
-                await EVENTHANDLER.send_message("Please provide a command and a response")
+                await self.event_Handler.send_message("Please provide a command and a response")
                 return
             param1 = res[0]
             param2 = res[1]
             if param1 in self.basic_commands:
-                await EVENTHANDLER.send_message("Command already exists")
+                await self.event_Handler.send_message("Command already exists")
                 return
             self.basic_commands[param1] = param2
-            EVENTHANDLER.TwitchAPI.CHAT.register_command(param1, self.basic_handler)
-            EVENTHANDLER.DBConn.AddBasicCommand(param1, param2)
-            await EVENTHANDLER.send_message(f"Command {param1} added")
+            self.event_Handler.TwitchAPI.CHAT.register_command(param1, self.basic_handler)
+            self.event_Handler.DBConn.AddBasicCommand(param1, param2)
+            await self.event_Handler.send_message(f"Command {param1} added")
             logging.info(f"CommandHandler.add_command: Params: '{param1}' || '{param2}'")
 
     async def remove_command(self,cmd: ChatCommand):
         logging.info(f"CommandHandler: {cmd.name} command called")
         if len(cmd.parameter) == 0:
-            await EVENTHANDLER.send_message("Please provide a command to remove")
+            await self.event_Handler.send_message("Please provide a command to remove")
         else:
             result = self.basic_commands.pop(cmd.parameter, "failed")
             if result == "failed":
-                await EVENTHANDLER.send_message("Command not found")
+                await self.event_Handler.send_message("Command not found")
             else:
-                EVENTHANDLER.TwitchAPI.CHAT.unregister_command(cmd.parameter)
-                EVENTHANDLER.DBConn.RemoveBasicCommand(cmd.parameter)
-                await EVENTHANDLER.send_message(f"Command {cmd.parameter} removed")
+                self.event_Handler.TwitchAPI.CHAT.unregister_command(cmd.parameter)
+                self.event_Handler.DBConn.RemoveBasicCommand(cmd.parameter)
+                await self.event_Handler.send_message(f"Command {cmd.parameter} removed")
             logging.info(f"CommandHandler.remove_command: Params {cmd.parameter}")
 
     async def edit_command(self,cmd: ChatCommand):
         logging.info(f"CommandHandler: {cmd.name} command called")
         if len(cmd.parameter) == 0:
-            await EVENTHANDLER.send_message("Please provide a command to edit")
+            await self.event_Handler.send_message("Please provide a command to edit")
         else:
             res = cmd.parameter.split(' ', 1)
             if len(res) != 2:
-                await EVENTHANDLER.send_message("Please provide a command and a response")
+                await self.event_Handler.send_message("Please provide a command and a response")
                 return
             param1 = res[0]
             param2 = res[1]
             if param1 not in self.basic_commands:
-                await EVENTHANDLER.send_message("Command not found")
+                await self.event_Handler.send_message("Command not found")
                 return
             self.basic_commands[param1] = param2
-            EVENTHANDLER.DBConn.EditBasicCommand(param1, param2)
+            self.event_Handler.DBConn.EditBasicCommand(param1, param2)
             logging.info(f"CommandHandler.edit_command: Params {cmd.parameter}")
-            await EVENTHANDLER.send_message(f"Command {param1} edited")
+            await self.event_Handler.send_message(f"Command {param1} edited")
             
 
 #=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=
@@ -114,9 +109,7 @@ class CommandHandler(Module):
     
     def __init__(self, eventHandler: EventHandler):
         super().__init__("CommandHandler" , eventHandler)
-        global help, commands_list
-        global EVENTHANDLER
-        EVENTHANDLER = eventHandler
+        self.event_Handler = eventHandler
         self.commands = {}
         #self.commands["help"] = self.help_command
         self.commands["commands"] = self.commands_list
@@ -135,17 +128,17 @@ class CommandHandler(Module):
                 or command == "ban"
                 or command == "unban"
                 ):
-                EVENTHANDLER.TwitchAPI.CHAT.register_command(
+                self.event_Handler.TwitchAPI.CHAT.register_command(
                     command,
                     self.commands[command],
-                    command_middleware=[UsrRestriction(allowed_users=PERMITTED_USERS)])
+                    command_middleware=[UsrRestriction(allowed_users=self.event_Handler.TwitchAPI.PERMITTED_USERS)])
             else:
                 eventHandler.Add_command(command, self.commands[command])
         
-        for basic_command in EVENTHANDLER.DBConn.GetBasicCommands():
+        for basic_command in self.event_Handler.DBConn.GetBasicCommands():
             logging.info(f"CommandHandler: Added basic command: {basic_command}")
             self.basic_commands[basic_command[0]] = basic_command[1]
-            EVENTHANDLER.TwitchAPI.CHAT.register_command(basic_command[0], self.basic_handler)
+            self.event_Handler.TwitchAPI.CHAT.register_command(basic_command[0], self.basic_handler)
 
             
         logging.info("CommandHandler module loaded")
