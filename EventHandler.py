@@ -56,6 +56,9 @@ class EventHandler:
         
     async def unban_user(self, user):
         await self.TwitchAPI.unban_user(user)
+        
+    async def get_chat_users(self):
+        return await self.TwitchAPI.get_chat_users()
     
     
     #------- event sub events -------   

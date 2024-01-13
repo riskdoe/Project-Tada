@@ -9,9 +9,12 @@ from twitchAPI.type import AuthScope
 from twitchAPI.type import ChatEvent, TwitchAPIException
 from twitchAPI.chat import Chat, EventData, ChatMessage, ChatCommand
 
+
 #twtich api imports
 from twitchAPI.eventsub.websocket import EventSubWebsocket
 from twitchAPI.object.eventsub import *
+from twitchAPI.object.api import GetChattersResponse
+from twitchAPI.object.api import Chatter as twitchChatter
 
 #fast Api
 from fastapi import FastAPI, Request
@@ -26,11 +29,13 @@ import logging
 from ModuleChatLog import ChatLog
 from ModuleBanLog import BanLog
 from ModuleCommandHandler import CommandHandler
+from ModuleMiniGameSystem import MinigameSystem
 
 
 TWITCH: Twitch
 AUTH: UserAuthenticator
 CHAT: Chat
+PERMITTED_USERS:list[str] = ["riskypoi","lilacsblooms"]
 
 APP_ID = None
 APP_SECRET = None
@@ -51,7 +56,8 @@ TARGET_SCOPE = [AuthScope.CHAT_READ,
                 AuthScope.MODERATOR_MANAGE_SHOUTOUTS,
                 AuthScope.MODERATION_READ,
                 AuthScope.CHANNEL_MODERATE,
-                AuthScope.MODERATOR_MANAGE_BANNED_USERS]
+                AuthScope.MODERATOR_MANAGE_BANNED_USERS,
+                AuthScope.MODERATOR_READ_CHATTERS]
 
 app = FastAPI()
     
@@ -215,6 +221,9 @@ async def cancel_raid():
 async def shoutout(user: str):
     target = await first(TWITCH.get_users(logins=[user]))
     TWITCH.send_a_shoutout(HOST_CHANNEL_ID, target.id, HOST_CHANNEL_ID)
+    
+async def get_chat_users():
+    return await TWITCH.get_chatters(HOST_CHANNEL_ID,HOST_CHANNEL_ID)
 
 
 #chat
