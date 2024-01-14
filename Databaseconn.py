@@ -57,6 +57,22 @@ class Unbandata():
     def __str__(self):
         return f"{self.userName} was unbanned by {self.moderatorName}"
 
+class minigameplayer():
+    def __init__(self, id: str, name: str, 
+                 points: int = 0, total_wins: int = 0,
+                 trivia_wins: int = 0,
+                 hangman_Wins: int = 0):
+        self.id = id
+        self.name = name
+        self.points = points
+        self.total_wins = total_wins
+        
+        #Trivia
+        self.trivia_wins = trivia_wins
+        
+        #hangman
+        self.hangman_Wins = hangman_Wins
+
 class Databaseconn():
     def __init__(self, eventHandler, dbname: str):
         self.eventHandler = eventHandler
@@ -70,6 +86,8 @@ class Databaseconn():
         self.cursor.execute('CREATE TABLE IF NOT EXISTS "UnBanLog" ("ID" INTEGER NOT NULL, "BannedUserID" TEXT NOT NULL, "BannedUserName" TEXT NOT NULL, "ModeratorID" TEXT NOT NULL, "ModeratorUser" TEXT NOT NULL, PRIMARY KEY("ID" AUTOINCREMENT))')
         self.db.commit()
         self.cursor.execute('CREATE TABLE IF NOT EXISTS "BasicCommands" ("ID" INTEGER NOT NULL, "Alias" TEXT NOT NULL, "Return" TEXT NOT NULL, PRIMARY KEY("ID" AUTOINCREMENT))')
+        self.db.commit()
+        self.cursor.execute('CREATE TABLE IF NOT EXISTS "MiniGamePlayers" ("ID" INTEGER NOT NULL, "TwitchID" TEXT NOT NULL , "Name" TEXT NOT NULL,"Points" INTEGER NOT NULL,"TotalWins" INTEGER NOT NULL,"TriviaWins" INTEGER NOT NULL,"HangmanWins" INTEGER NOT NULL,PRIMARY KEY("ID" AUTOINCREMENT))')
         self.db.commit()
 
     def AddMessage(self, data: ChatMessage):
@@ -107,4 +125,25 @@ class Databaseconn():
     def EditBasicCommand(self, Alias:str, Output:str):
         logging.info(f"Databaseconn.EditBasicCommand: Alias: {Alias} || Output: {Output}")
         self.cursor.execute(f'UPDATE "BasicCommands" SET "Return"="{Output}" WHERE Alias="{Alias}"')
+        self.db.commit()
+
+
+###minigame stuff
+
+    def GetMiniGamePlayers(self):
+        players: list[minigameplayer] = []
+        logging.info(f"Databaseconn.GetMiniGamePlayers: returning players")
+        self.cursor.execute('SELECT "TwitchID", "Name", "Points", "TotalWins", "TriviaWins", "HangmanWins" FROM "MiniGamePlayers"')
+        out = self.cursor.fetchall()
+        #logging.info(f"Databaseconn.GetMiniGamePlayers: out: {out}")
+        return out
+
+    def AddMiniGamePlayer(self, player:minigameplayer):
+        logging.info(f"Databaseconn.AddMiniGamePlayer: player: {player}")
+        self.cursor.execute(f'INSERT INTO "MiniGamePlayers"("TwitchID", "Name", "Points", "TotalWins", "TriviaWins", "HangmanWins") VALUES ("{player.id}","{player.name}", "{player.points}", "{player.total_wins}", "{player.trivia_wins}", "{player.hangman_Wins}")')
+        self.db.commit()
+
+    def UpdateMiniGamePlayer(self, player:minigameplayer):
+        logging.info(f"Databaseconn.update_user: player: {player}")
+        self.cursor.execute(f'UPDATE "MiniGamePlayers" SET "Points"="{player.points}", "TotalWins"="{player.total_wins}", "TriviaWins"="{player.trivia_wins}", "HangmanWins"="{player.hangman_Wins}" WHERE "TwitchID"="{player.id}"')
         self.db.commit()

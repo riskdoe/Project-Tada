@@ -11,15 +11,12 @@ from twitchAPI.chat.middleware import UserRestriction as UsrRestriction
 
 
 class minigameplayer():
-    def __init__(self, id: str, name: str, mod: bool, subscriber: bool, vip: bool, 
+    def __init__(self, id: str, name: str, 
                  points: int = 0, total_wins: int = 0,
                  trivia_wins: int = 0,
                  hangman_Wins: int = 0):
         self.id = id
         self.name = name
-        self.mod = mod
-        self.subscriber = subscriber
-        self.vip = vip
         self.points = points
         self.total_wins = total_wins
         
@@ -78,8 +75,7 @@ class minigame_trivia():
             self.Event_Handler.TwitchAPI.remove_command("d")
             self.Event_Handler.TwitchAPI.remove_command("question")
             self.Event_Handler.TwitchAPI.remove_command("answers")
-            self.Event_Handler.TwitchAPI.remove_command("triviahelp")
-            self.Event_Handler.TwitchAPI.remove_command("thelp")
+            self.Event_Handler.TwitchAPI.remove_command("gamehelp")
             
             
             #TODO: update database
@@ -87,8 +83,10 @@ class minigame_trivia():
             self.Creator.get_player(cmd.user.name).total_wins += 1
             self.Creator.get_player(cmd.user.name).points += 100
             
+            self.Event_Handler.DBConn.UpdateMiniGamePlayer(self.Creator.get_player(cmd.user.name))
+            
             await self.Event_Handler.send_message(f"{cmd.user.name} answered correctly and gained 100 points")
-            await self.Event_Handler.send_message(f"{cmd.user.name} won the round, Round over.")
+            await self.Event_Handler.send_message(f"{cmd.user.name} won the round and gained 100 points, Round over.")
             
             self.Creator.current_game = None
 
@@ -153,9 +151,80 @@ class minigame_trivia():
 
 
 #TODO: make hangman game
-class minigame_hangman():
-    def __init__(self):
-        pass
+class minigame_wordle():
+    def __init__(self, Creator, Eventhandler: EventHandler, Chat: Chat):
+        self.Creator = Creator
+        self.event_Handler = Eventhandler
+        self.Chat = Chat        
+        f = open("Wordle_Wordlist.json", "r")
+        data = json.load(f)
+        words = data["data"]
+        self.word = words[random.randint(0,len(words)-1)]
+        self.word = self.word.lower()    
+        logging.info(f"wordle started. word is: {self.word}")
+        
+    async def make_guess(self, cmd:ChatCommand):
+        if len(cmd.parameter) != 5:
+            await self.event_Handler.send_message("Guess a 5 letter word")
+            return
+        guess = cmd.parameter.lower()
+        #if they guess the word assign points
+        if guess == self.word:
+            await cmd.reply(f"{cmd.user.name} Correctly guessed the word {self.word}")
+            await self.event_Handler.send_message(f"{cmd.user.name} won the round and gained 100 points, Round over.")
+            self.event_Handler.TwitchAPI.remove_command("guess")
+            self.event_Handler.TwitchAPI.remove_command("gamehelp")
+            self.Creator.current_game = None
+            #TODO: update database
+            self.Creator.get_player(cmd.user.name).hangman_Wins += 1
+            self.Creator.get_player(cmd.user.name).total_wins += 1
+            self.Creator.get_player(cmd.user.name).points += 100
+            
+            self.event_Handler.DBConn.UpdateMiniGamePlayer(self.Creator.get_player(cmd.user.name))
+        #else game logic
+        else:
+            
+            #check for correct letters
+            correct_letters = {
+                letter for letter, correct in zip(guess, self.word) if letter == correct
+            }
+            misplaced_letters = set(guess) & set(self.word) - correct_letters
+            wrong_letters = set(guess) - set(self.word)
+            
+            #tidy up output
+            output1 = ""
+            output2 = ""
+            output3 = ""
+            if len(correct_letters) == 0:
+                output1 = "No correct letters"
+            elif len(correct_letters) >= 1:
+                output1 = "correct letters: " + " ,".join(sorted(correct_letters))
+
+            if len(misplaced_letters) == 0:
+                output2 = "No misplaced letters"
+            elif len(misplaced_letters) >= 1:
+                output2 = "misplaced letters: " + " ,".join(sorted(misplaced_letters))
+
+            if len(wrong_letters) == 0:
+                output3 = "No wrong letters"
+            elif len(wrong_letters) >= 1:
+                output3 = "wrong letters: " + " ,".join(sorted(wrong_letters))
+            
+            #send output   
+            await cmd.reply(f"guessed {guess}")
+            await self.event_Handler.send_message(output1)
+            await self.event_Handler.send_message(output2)
+            await self.event_Handler.send_message(output3)
+
+
+    async def wordle_help(self, cmd: ChatCommand):
+        await self.event_Handler.send_message(f"!guess to guess a word")
+        await self.event_Handler.send_message(f"!wordlehelp to see commands")
+        await self.event_Handler.send_message(f"When you guess a word. I will tell you what letters are correct, misplaced, and wrong.")
+    
+    def start(self):
+        self.event_Handler.TwitchAPI.add_command("guess", self.make_guess)
+        self.event_Handler.TwitchAPI.add_command("gamehelp", self.wordle_help)
 
 
 
@@ -170,15 +239,13 @@ class MinigameSystem(Module):
         else:
             player = minigameplayer(
                     cmd.user.id, 
-                    cmd.user.name, 
-                    cmd.user.mod, 
-                    cmd.user.subscriber, 
-                    cmd.user.vip)
+                    cmd.user.name)
             self.players.append(player)
             logging.info(f'{self.name}: {cmd.user.name} added to minigame system')
             logging.info(player)
+            self.event_Handler.DBConn.AddMiniGamePlayer(player)
             await cmd.reply(f"you have been added to the minigame system")
-            #TODO: record the user in DATABASE
+
 
     async def user_get_points(self, cmd: ChatCommand):
         if not any(x.name == cmd.user.name for x in self.players):
@@ -186,7 +253,7 @@ class MinigameSystem(Module):
             pass
         else:
             player = self.get_player(cmd.user.name)
-            await cmd.reply(f"{player.name}: {player.points} points")
+            await cmd.reply(f": {player.points} points")
 
     async def user_get_stats(self, cmd: ChatCommand):
         if not any(x.name == cmd.user.name for x in self.players):
@@ -194,7 +261,7 @@ class MinigameSystem(Module):
             pass
         else:
             player = self.get_player(cmd.user.name)
-            await cmd.reply(f"{player.name}: {player.points} points, {player.total_wins} wins({player.trivia_wins} trivia wins, {player.hangman_Wins} hangman wins)")
+            await cmd.reply(f": {player.points} points, {player.total_wins} wins({player.trivia_wins} trivia wins, {player.hangman_Wins} wordle wins)")
 
     #run when user asks for help
     async def minigame_help(self, cmd: ChatCommand):
@@ -215,16 +282,31 @@ class MinigameSystem(Module):
         await self.event_Handler.send_message(f"!gamehelp to see commands")
         self.current_game.start()
 
+    #start hangman game
+    async def start_wordle(self, cmd: ChatCommand):
+        self.current_game = minigame_wordle(self,self.event_Handler, self.event_Handler.TwitchAPI.CHAT)
+        await self.event_Handler.send_message(f"Guess a 5 letter word")
+        await self.event_Handler.send_message(f"!gamehelp to see commands")
+        self.current_game.start()
+
     #create minigame class
     def __init__(self, eventHandler: EventHandler):
         super().__init__("MiniGameSystem", eventHandler)
-        self.players = []
+        self.players: list[minigameplayer] = []
+        
+        for player in self.event_Handler.DBConn.GetMiniGamePlayers():
+            person = minigameplayer(player[0], player[1], player[2], player[3], player[4], player[5])
+            self.players.append(person)
+            logging.info(f'{self.name}: {person.name} added to minigame system loaded from db')
         self.current_game = None
         #create minigame commands
         self.event_Handler.TwitchAPI.add_command("signup", self.on_signup)
         self.event_Handler.TwitchAPI.add_command("minigamehelp",self.minigame_help)
         self.event_Handler.TwitchAPI.add_command("mghelp", self.minigame_help)
+        self.event_Handler.TwitchAPI.add_command("points", self.user_get_points)
+        self.event_Handler.TwitchAPI.add_command("stats", self.user_get_stats)
         self.event_Handler.TwitchAPI.CHAT.register_command("starttrivia", self.start_triva,command_middleware=[UsrRestriction(allowed_users=self.event_Handler.TwitchAPI.PERMITTED_USERS)])
+        self.event_Handler.TwitchAPI.CHAT.register_command("startwordle", self.start_wordle,command_middleware=[UsrRestriction(allowed_users=self.event_Handler.TwitchAPI.PERMITTED_USERS)])
         
     #get list of players
     def get_players(self):
