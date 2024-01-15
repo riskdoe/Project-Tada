@@ -270,24 +270,36 @@ class MinigameSystem(Module):
         await self.event_Handler.send_message(f"!stats to see your overall stats")
         await self.event_Handler.send_message(f"!gamehelp to see game specific commands for currently running game") 
 
+    async def start_minigame(self, type:str):
+        if type == "trivia":
+            self.current_game = minigame_trivia(self,self.event_Handler, self.event_Handler.TwitchAPI.CHAT)
+            await self.event_Handler.send_message(f"{self.current_game.get_question()}")
+            await self.event_Handler.send_message(f"Answers")
+            await self.event_Handler.send_message(f"!a: {self.current_game.get_answer(0)}")
+            await self.event_Handler.send_message(f"!b: {self.current_game.get_answer(1)}")
+            await self.event_Handler.send_message(f"!c: {self.current_game.get_answer(2)}")
+            await self.event_Handler.send_message(f"!d: {self.current_game.get_answer(3)}")
+            await self.event_Handler.send_message(f"!gamehelp to see commands")
+            self.current_game.start()
+        elif type == "wordle":
+            self.current_game = minigame_wordle(self,self.event_Handler, self.event_Handler.TwitchAPI.CHAT)
+            await self.event_Handler.send_message(f"Guess a 5 letter word")
+            await self.event_Handler.send_message(f"!gamehelp to see commands")
+            self.current_game.start()
+
     #start trivia game
     async def start_triva(self, cmd: ChatCommand):
-        self.current_game = minigame_trivia(self,self.event_Handler, self.event_Handler.TwitchAPI.CHAT)
-        await self.event_Handler.send_message(f"{self.current_game.get_question()}")
-        await self.event_Handler.send_message(f"Answers")
-        await self.event_Handler.send_message(f"!a: {self.current_game.get_answer(0)}")
-        await self.event_Handler.send_message(f"!b: {self.current_game.get_answer(1)}")
-        await self.event_Handler.send_message(f"!c: {self.current_game.get_answer(2)}")
-        await self.event_Handler.send_message(f"!d: {self.current_game.get_answer(3)}")
-        await self.event_Handler.send_message(f"!gamehelp to see commands")
-        self.current_game.start()
+        await self.start_minigame("trivia")
 
     #start hangman game
     async def start_wordle(self, cmd: ChatCommand):
-        self.current_game = minigame_wordle(self,self.event_Handler, self.event_Handler.TwitchAPI.CHAT)
-        await self.event_Handler.send_message(f"Guess a 5 letter word")
-        await self.event_Handler.send_message(f"!gamehelp to see commands")
-        self.current_game.start()
+        await self.start_minigame("wordle")
+
+
+    async def on_webfrontend_message(self, command:str):
+        if command == "start_trivia":
+            logging.info("starting trivia")
+            await self.start_minigame("trivia")
 
     #create minigame class
     def __init__(self, eventHandler: EventHandler):

@@ -5,6 +5,7 @@ from Databaseconn import Databaseconn
 from EventHandler import EventHandler
 
 import TwitchApiConn
+from TwitchApiConn import router as twitch_api_router
 import logging
 
 from fastapi import FastAPI
@@ -24,6 +25,7 @@ eventHandler: EventHandler = None
 # Create a new FastAPI application
 app = FastAPI()
 app.include_router(chat_log_router, prefix="/api/v1")
+app.include_router(twitch_api_router, prefix="/api/v1")
 
 # Define a route
 @app.get("/")

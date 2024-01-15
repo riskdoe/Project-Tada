@@ -24,6 +24,8 @@ from EventHandler import EventHandler
 #other imports
 import asyncio
 import logging
+from queue import Queue
+from fastapi import APIRouter
 
 #modules
 from ModuleChatLog import ChatLog
@@ -36,6 +38,8 @@ TWITCH: Twitch
 AUTH: UserAuthenticator
 CHAT: Chat
 PERMITTED_USERS:list[str] = ["riskypoi","lilacsblooms"]
+
+COMMAND_QUEUE = Queue()
 
 APP_ID = None
 APP_SECRET = None
@@ -80,6 +84,17 @@ async def login_confirm():
     except TwitchAPIException as e:
         return 'Failed to generate auth token', 400
     return 'Successfully authenticated!'
+
+
+
+
+#router for starting events in twitch thread
+router = APIRouter()
+@router.get("/start_trivia")
+def start_event():
+    global COMMAND_QUEUE
+    COMMAND_QUEUE.put("start_trivia")
+    return "event started"
 
 #will be called when the bot is ready so we can connect to target
 async def on_ready(ready_event: EventData):
@@ -337,20 +352,15 @@ async def twitch_setup():
     await eventsub.listen_channel_chat_clear(user.id, user.id, on_chat_clear)
     await eventsub.listen_channel_chat_clear_user_messages(user.id, user.id, on_chat_clear_user_messages)
     await eventsub.listen_channel_chat_message_delete(user.id,user.id, on_chat_delete_messages)
-    
-    try:
-        input('enter to exit\n')
-    except KeyboardInterrupt:
-        pass
-    finally:
-        CHAT.stop()
-        await TWITCH.close()
-        logging.info("twitch connection closed")
-        exit()
-    
-    
-    
-    
+
+    logging.info("twitch setup complete")
+    while True:
+        if not COMMAND_QUEUE.empty():
+            command = COMMAND_QUEUE.get()
+            logging.info(command)
+            if command == "start_trivia":
+                await EVENT_HANDLER.on_webfrontend_message(command)
+
 def run( clientID, clientSecret, EventHandler: EventHandler):
     global APP_ID, APP_SECRET, HOST_CHANNEL, EVENT_HANDLER
     APP_ID = clientID

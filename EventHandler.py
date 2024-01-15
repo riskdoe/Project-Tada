@@ -24,9 +24,13 @@ class EventHandler:
     #add module
     def AddModule(self, Module: Module):
         self.Modules.append(Module)
-    
 
-      
+
+    #------- webfrontend events -------
+    async def on_webfrontend_message(self, command:str):
+        for Module in self.Modules:
+            await Module.on_webfrontend_message(command)
+
     #------- chat bot events -------  
         
     # on_message

@@ -174,3 +174,7 @@ class Module():
     # ref: https://pytwitchapi.dev/en/stable/modules/twitchAPI.eventsub.base.html#twitchAPI.eventsub.base.EventSubBase.listen_channel_chat_message_delete
     async def on_channel_chat_message_delete(self, data):
         pass
+    
+    
+    async def on_webfrontend_message(self, command):
+        pass
