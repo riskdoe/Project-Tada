@@ -17,7 +17,7 @@ channel = ""
 clientID = ""
 clientSecret = ""
 
-eventHandler = None
+eventHandler: EventHandler = None
 
 # Existing code...
 
@@ -102,14 +102,9 @@ def start_twitch():
 if __name__ == "__main__":
     
     # Run FastAPI server in a separate thread
-    #fastapi_thread = Thread(target=start_fastapi)
-    #fastapi_thread.start()
+    fastapi_thread = Thread(target=start_fastapi)
+    fastapi_thread.start()
     
-    # run twitch bot in separate thread
-    twitch_thread = Thread(target=start_twitch)
-    twitch_thread.start()
-    
-    #fastapi_thread.join()
-    twitch_thread.join()
+    start_twitch()
     
     
