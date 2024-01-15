@@ -1,5 +1,6 @@
 import asyncio
 from Module import Module
+from ConfigHandler import ConfigHandler
 from twitchAPI.object.eventsub import ChannelFollowEvent, ChannelBanEvent
 from twitchAPI.chat import Chat, EventData, ChatMessage, ChatCommand
 from Databaseconn import Databaseconn
@@ -20,6 +21,9 @@ class EventHandler:
     
     def assign_to_DBConn(self, DBConn):
         self.DBConn = DBConn
+
+    def assign_to_config(self, config):
+        self.config = config
     
     #add module
     def AddModule(self, Module: Module):

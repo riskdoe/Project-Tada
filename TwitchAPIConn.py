@@ -37,8 +37,7 @@ from ModuleMiniGameSystem import MinigameSystem
 TWITCH: Twitch
 AUTH: UserAuthenticator
 CHAT: Chat
-PERMITTED_USERS:list[str] = ["riskypoi","lilacsblooms"]
-
+PERMITTED_USERS:list[str] = []
 COMMAND_QUEUE = Queue()
 
 APP_ID = None
@@ -279,6 +278,7 @@ async def twitch_setup():
     global TWITCH, AUTH
     global HOST_CHANNEL, HOST_CHANNEL_ID
     global CHAT
+    global PERMITTED_USERS
     
     TWITCH = await Twitch(APP_ID, APP_SECRET)
     AUTH = UserAuthenticator(TWITCH, TARGET_SCOPE)
@@ -309,10 +309,19 @@ async def twitch_setup():
     eventsub.start()
     
     # add modules
-    chatLog = ChatLog(EVENT_HANDLER)
-    banLog = BanLog(EVENT_HANDLER)
-    commandHandler = CommandHandler(EVENT_HANDLER)
-    miniGameHost = MinigameSystem(EVENT_HANDLER)
+    
+    if(EVENT_HANDLER.config.chat_log):
+        logging.info("adding chat log")
+        chatLog = ChatLog(EVENT_HANDLER)
+    if(EVENT_HANDLER.config.ban_log):
+        logging.info("adding ban log")
+        banLog = BanLog(EVENT_HANDLER)
+    if(EVENT_HANDLER.config.basic_command):
+        logging.info("adding command handler")
+        commandHandler = CommandHandler(EVENT_HANDLER)
+    if(EVENT_HANDLER.config.minigames):
+        logging.info("adding minigame handler")
+        miniGameHost = MinigameSystem(EVENT_HANDLER)
     
     EVENT_HANDLER.AddModule(chatLog)
     EVENT_HANDLER.AddModule(banLog)
@@ -362,10 +371,11 @@ async def twitch_setup():
                 await EVENT_HANDLER.on_webfrontend_message(command)
 
 def run( clientID, clientSecret, EventHandler: EventHandler):
-    global APP_ID, APP_SECRET, HOST_CHANNEL, EVENT_HANDLER
+    global APP_ID, APP_SECRET, HOST_CHANNEL, EVENT_HANDLER,PERMITTED_USERS
     APP_ID = clientID
     APP_SECRET = clientSecret
     EVENT_HANDLER = EventHandler
+    PERMITTED_USERS = EventHandler.config.Super_moderators
     
     logging.info("starting twitch chat connection")
     asyncio.run(twitch_setup())
