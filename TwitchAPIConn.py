@@ -289,6 +289,7 @@ async def twitch_setup():
     user = await first(TWITCH.get_users())
     HOST_CHANNEL = user.login
     HOST_CHANNEL_ID = user.id
+    EVENT_HANDLER.config.channelID = HOST_CHANNEL_ID
     logging.info("target channel: " + HOST_CHANNEL)
     
     # target channels
