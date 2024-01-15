@@ -107,14 +107,14 @@ if __name__ == "__main__":
             "channel_owner"
         ],
 
-        "Basic_Commands": "true",
-        "Chat_log": "true",
-        "Ban_log": "true",
-        "Unban_log": "true",
-        "Mini_games": "true",
+        "Basic_Commands": True,
+        "Chat_log": True,
+        "Ban_log": True,
+        "Unban_log": True,
+        "Mini_games": True,
         "Mini_games_pointsperwin": 100,
-        "Shoutout_Auto": "true",
-        "Shoutout_Soft": "true",
+        "Shoutout_Auto": True,
+        "Shoutout_Soft": True,
         "Shoutout_Message": "Check out {user} at https://twitch.tv/{user}!",
         "Shoutout_list": [
             "target_user1"

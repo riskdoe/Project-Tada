@@ -5,6 +5,7 @@ import logging
 class ConfigHandler:
     def __init__(self):
         self.channel = None
+        self.channelID = None
         self.clientID = None
         self.clientSecret = None
         self.Super_moderators: list[str] = []
@@ -51,3 +52,20 @@ class ConfigHandler:
             self.auto_shoutout_isSoft = config_data['Shoutout_Soft']
             self.auto_shoutout_message = config_data['Shoutout_Message']
             self.Shoutout_list = config_data['Shoutout_list']
+            
+            logging.info("Config loaded")
+            logging.info(f"Channel: {self.channel}")
+            # logging.info(f"ClientID: {self.clientID}")
+            # logging.info(f"ClientSecret: {self.clientSecret}")
+            logging.info(f"Super Moderators: {self.Super_moderators}")
+            logging.info(f"Basic Commands: {self.basic_command}")
+            logging.info(f"Chat log: {self.chat_log}")
+            logging.info(f"Ban log: {self.ban_log}")
+            logging.info(f"Unban log: {self.unban_log}")
+            logging.info(f"Minigames: {self.minigames}")
+            logging.info(f"Minigame points per win: {self.minigame_pointsPerWin}")
+            logging.info(f"Auto shoutout: {self.auto_shoutout}")
+            logging.info(f"Auto shoutout is soft: {self.auto_shoutout_isSoft}")
+            logging.info(f"Auto shoutout message: {self.auto_shoutout_message}")
+            logging.info(f"Auto shoutout list: {self.Shoutout_list}")
+            
