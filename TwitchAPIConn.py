@@ -32,6 +32,7 @@ from ModuleChatLog import ChatLog
 from ModuleBanLog import BanLog
 from ModuleCommandHandler import CommandHandler
 from ModuleMiniGameSystem import MinigameSystem
+from ModuleShoutouts import Shoutout
 
 
 TWITCH: Twitch
@@ -314,20 +315,28 @@ async def twitch_setup():
     if(EVENT_HANDLER.config.chat_log):
         logging.info("adding chat log")
         chatLog = ChatLog(EVENT_HANDLER)
+        EVENT_HANDLER.AddModule(chatLog)
     if(EVENT_HANDLER.config.ban_log):
         logging.info("adding ban log")
         banLog = BanLog(EVENT_HANDLER)
+        EVENT_HANDLER.AddModule(banLog)
     if(EVENT_HANDLER.config.basic_command):
         logging.info("adding command handler")
         commandHandler = CommandHandler(EVENT_HANDLER)
+        EVENT_HANDLER.AddModule(commandHandler)
     if(EVENT_HANDLER.config.minigames):
         logging.info("adding minigame handler")
         miniGameHost = MinigameSystem(EVENT_HANDLER)
+        EVENT_HANDLER.AddModule(miniGameHost)
+    if(EVENT_HANDLER.config.auto_shoutout):
+        logging.info("adding shoutout handler")
+        shoutout = Shoutout(EVENT_HANDLER)
+        EVENT_HANDLER.AddModule(shoutout)
     
-    EVENT_HANDLER.AddModule(chatLog)
-    EVENT_HANDLER.AddModule(banLog)
-    EVENT_HANDLER.AddModule(commandHandler)
-    EVENT_HANDLER.AddModule(miniGameHost)
+    
+    
+    
+    
     
     #add all the commands
     commands = EVENT_HANDLER.Get_commands()
