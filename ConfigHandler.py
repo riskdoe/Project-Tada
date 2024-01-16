@@ -27,7 +27,17 @@ class ConfigHandler:
         self.auto_shoutout_isSoft = False
         self.auto_shoutout_message = ""
         self.Shoutout_list: list[str] = []
+        
+        #faq and rules
+        self.faq = False
+        self.faq_list: list[str] = []
+        self.rules = False
+        self.rules_list: list[str] = []
+        
         # Add more fields as needed
+        
+        
+        
 
     def load_config(self, filepath):
         with open(filepath, 'r') as file:
@@ -52,6 +62,15 @@ class ConfigHandler:
             self.auto_shoutout_isSoft = config_data['Shoutout_Soft']
             self.auto_shoutout_message = config_data['Shoutout_Message']
             self.Shoutout_list = config_data['Shoutout_list']
+            
+            #faq and rules
+            self.faq = config_data['faq']
+            self.faq_list = config_data['faq_list']
+            self.rules = config_data['rules']
+            self.rules_list = config_data['rules_list']
+            
+            
+            
             
             logging.info("Config loaded")
             logging.info(f"Channel: {self.channel}")

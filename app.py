@@ -118,7 +118,20 @@ if __name__ == "__main__":
         "Shoutout_Message": "Check out {user} at https://twitch.tv/{user}!",
         "Shoutout_list": [
             "target_user1"
-        ]  
+        ],
+        
+        
+        "faq": True,
+        "faq_list": [
+            "question1",
+            "question2"
+        ],
+        
+        "rules": True,
+        "rules_list": [
+            "rule1",
+            "rule2"
+        ]
     }
         
     if not os.path.exists("config.json"):

@@ -9,6 +9,19 @@ class CommandHandler(Module):
 #    async def help_command(self,cmd: ChatCommand):
 #        await self.event_Handler.send_message("help command")
 
+
+    async def Faq_command(self,cmd: ChatCommand):
+        await self.event_Handler.send_message("FAQ")
+        for faq in self.faq:
+            await self.event_Handler.send_message(faq)
+
+    async def Rules_command(self,cmd: ChatCommand):
+        await self.event_Handler.send_message("Rules")
+        rulecount = 1
+        for rule in self.rules:
+            await self.event_Handler.send_message(f"{rulecount}: {rule}")
+            rulecount = rulecount + 1
+
     async def commands_list(self,cmd: ChatCommand):
         commandlist :str = ""
 
@@ -110,6 +123,12 @@ class CommandHandler(Module):
     def __init__(self, eventHandler: EventHandler):
         super().__init__("CommandHandler" , eventHandler)
         self.event_Handler = eventHandler
+        #faq list
+        self.faq = eventHandler.config.faq_list
+        #rules list
+        self.rules = eventHandler.config.rules_list
+        
+        
         self.commands = {}
         #self.commands["help"] = self.help_command
         self.commands["commands"] = self.commands_list
@@ -118,6 +137,11 @@ class CommandHandler(Module):
         self.commands["edit_command"] = self.edit_command
         self.commands["ban"] = self.ban_command
         self.commands["unban"] = self.unban_command
+        
+        self.commands["faq"] = self.Faq_command
+        self.commands["rules"] = self.Rules_command
+        
+        
         
         self.basic_commands = {}
         for command in self.commands:
