@@ -94,7 +94,25 @@ router = APIRouter()
 def start_event():
     global COMMAND_QUEUE
     COMMAND_QUEUE.put("start_trivia")
-    return "event started"
+    return "trivia started"
+
+@router.get("/start_wordle")
+def start_event():
+    global COMMAND_QUEUE
+    COMMAND_QUEUE.put("start_wordle")
+    return "wordle started"
+
+@router.get("/testing/streamstream")
+def start_event():
+    global COMMAND_QUEUE
+    COMMAND_QUEUE.put("streamstream")
+    return "streamstream sent"
+
+@router.get("/testing/endstream")
+def start_event():
+    global COMMAND_QUEUE
+    COMMAND_QUEUE.put("endstream")
+    return "endstream sent"
 
 #will be called when the bot is ready so we can connect to target
 async def on_ready(ready_event: EventData):
@@ -377,8 +395,8 @@ async def twitch_setup():
         if not COMMAND_QUEUE.empty():
             command = COMMAND_QUEUE.get()
             logging.info(command)
-            if command == "start_trivia":
-                await EVENT_HANDLER.on_webfrontend_message(command)
+            await EVENT_HANDLER.on_webfrontend_message(command)
+                
 
 def run( clientID, clientSecret, EventHandler: EventHandler):
     global APP_ID, APP_SECRET, HOST_CHANNEL, EVENT_HANDLER,PERMITTED_USERS
