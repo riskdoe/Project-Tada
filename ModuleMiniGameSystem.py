@@ -300,6 +300,9 @@ class MinigameSystem(Module):
         if command == "start_trivia":
             logging.info("starting trivia")
             await self.start_minigame("trivia")
+        if command == "start_wordle":
+            logging.info("starting wordle")
+            await self.start_minigame("wordle")
 
     #create minigame class
     def __init__(self, eventHandler: EventHandler):

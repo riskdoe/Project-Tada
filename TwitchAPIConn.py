@@ -33,6 +33,7 @@ from ModuleBanLog import BanLog
 from ModuleCommandHandler import CommandHandler
 from ModuleMiniGameSystem import MinigameSystem
 from ModuleShoutouts import Shoutout
+from ModulesStreamTracker import StreamTracker
 
 
 TWITCH: Twitch
@@ -259,6 +260,10 @@ async def get_chat_users():
     return await TWITCH.get_chatters(HOST_CHANNEL_ID,HOST_CHANNEL_ID)
 
 
+async def get_channel_info():
+    return await TWITCH.get_channel_information(HOST_CHANNEL_ID)
+
+
 #chat
 async def send_message(message: str):
     await CHAT.send_message(HOST_CHANNEL, message)
@@ -351,6 +356,8 @@ async def twitch_setup():
         shoutout = Shoutout(EVENT_HANDLER)
         EVENT_HANDLER.AddModule(shoutout)
     
+    streamtracker = StreamTracker(EVENT_HANDLER)
+    EVENT_HANDLER.AddModule(streamtracker)
     
     
     
