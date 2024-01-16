@@ -1,6 +1,5 @@
 
 from Module import Module
-from fastapi import APIRouter
 from EventHandler import EventHandler
 from twitchAPI.chat import ChatMessage
 from twitchAPI.twitch import Twitch
