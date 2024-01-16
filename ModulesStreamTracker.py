@@ -4,8 +4,9 @@ from EventHandler import EventHandler
 import logging
 from twitchAPI.object.eventsub import *
 from twitchAPI.chat import ChatMessage
-from twitchAPI.object.api import ChannelInformation
+from twitchAPI.object.api import ChannelInformation,GetChattersResponse
 import time
+from datetime import datetime
 
 def get_time():
     return int(time.time())
@@ -61,7 +62,9 @@ class shoutout():
 
 
 class stream_instance():
-    def __init__(self):
+    def __init__(self, caller):
+        self.owner = caller
+        
         self.stream_start_time = get_time()
         self.stream_end_time = None
         self.stream_duration = None
@@ -79,11 +82,31 @@ class stream_instance():
         #we need a worker for this next part
         #updates every x ammount of time
         self.update_time = 60
-        self.number_of_veiwers_during_stream = []
+        self.number_of_viewers_during_stream = []
+        self.active = True
+
+        
+    
+    async def check_for_chatters(self):
+        logging.info("stream_instance.check_for_chatters: checking for chatters")
+        chattersresponse : GetChattersResponse = await self.owner.event_Handler.TwitchAPI.get_chat_users()
+        chatters = chattersresponse.data
+        logging.info(f"stream_instance.check_for_chatters: checking for chatters, time:{datetime.utcfromtimestamp(get_time()).strftime('%H:%M')}")
+        for chatter in chatters:
+            if chatter.user_name not in self.number_of_viewers_during_stream:
+                self.number_of_viewers_during_stream.append(chatter.user_name)
+                logging.info(f"stream_instance.check_for_chatters: new chatter {chatter.user_login} was found, added")                
+    async def start_worker(self):
+        while self.active:
+            await asyncio.gather(
+            asyncio.sleep(self.update_time),
+            self.check_for_chatters(),
+            )    
+        
 
     def updatewasrun(self):
         logging.info("stream_instance.updatewasrun: update was run")
-        logging.info(f"stream_instance.updatewasrun: {self.stream_start_time} was starttime")
+        logging.info(f"stream_instance.updatewasrun: {self.stream_start_time} was start time")
         logging.info(f"stream_instance.updatewasrun: {self.num_of_messages_during_stream} messages were sent")
         logging.info(f"stream_instance.updatewasrun: {len(self.active_chatter)} chatters were active")
         logging.info(f"stream_instance.updatewasrun: {len(self.follows_during_stream)} follows were made")
@@ -93,7 +116,7 @@ class stream_instance():
         logging.info(f"stream_instance.updatewasrun: {len(self.cheers_during_stream)} cheers were made")
         logging.info(f"stream_instance.updatewasrun: {len(self.shoutouts_during_stream)} shoutouts were made")
         if(self.stream_end_time != None):
-            logging.info(f"stream_instance.updatewasrun: {self.stream_end_time} was endtime")
+            logging.info(f"stream_instance.updatewasrun: {self.stream_end_time} was end time")
             logging.info(f"stream_instance.updatewasrun: {self.stream_duration} was duration")
         
         
@@ -101,6 +124,7 @@ class stream_instance():
     def end_stream(self):
         self.stream_end_time = get_time()
         self.stream_duration = self.stream_end_time - self.stream_start_time
+        self.active = False
         self.updatewasrun()
 
     def add_title(self, streamtitle, changetime):
@@ -220,7 +244,7 @@ class StreamTracker(Module):
         
     
     async def on_stream_online(self, data: StreamOnlineEvent):
-        self.active_stream = stream_instance()
+        self.active_stream = stream_instance(self)
         logging.info("StreamTracker.on_stream_online: recording")
         streaminfo: ChannelInformation = self.event_Handler.TwitchAPI.get_stream_info()
         self.active_stream.add_title(streaminfo.title,get_time())
@@ -262,12 +286,13 @@ class StreamTracker(Module):
     
     async def fake_start_stream(self):
         '''this is for testing purposes only'''
-        self.active_stream = stream_instance()
+        self.active_stream = stream_instance(self)
+        await self.active_stream.start_worker()
         logging.info("StreamTracker.test_on_stream_online: recording")
         streaminfo: ChannelInformation = await self.event_Handler.TwitchAPI.get_channel_info()
         #logging.info(streaminfo[0].title)
         self.active_stream.add_title(streaminfo[0].title,get_time())
-        pass
+
     
     async def fake_end_stream(self):
         '''this is for testing purposes only'''
