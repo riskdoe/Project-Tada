@@ -178,3 +178,6 @@ class Module():
     
     async def on_webfrontend_message(self, command):
         pass
+    
+    async def do_worker(self):
+        pass
