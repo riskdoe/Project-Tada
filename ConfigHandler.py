@@ -47,6 +47,8 @@ class ConfigHandler:
             self.clientSecret = config_data['clientSecret']
             self.Super_moderators = config_data['Super_Moderators']
             
+            self.worker_update_rate = config_data['worker_update_rate']
+            
             #commands
             self.basic_command = config_data['Basic_Commands']
             self.chat_log = config_data['Chat_log']
@@ -61,7 +63,9 @@ class ConfigHandler:
             self.auto_shoutout = config_data['Shoutout_Auto']
             self.auto_shoutout_isSoft = config_data['Shoutout_Soft']
             self.auto_shoutout_message = config_data['Shoutout_Message']
-            self.Shoutout_list = config_data['Shoutout_list']
+            tempShoutout_list = config_data['Shoutout_list']
+            for user in tempShoutout_list:
+                self.Shoutout_list.append(user.lower())
             
             #faq and rules
             self.faq = config_data['faq']

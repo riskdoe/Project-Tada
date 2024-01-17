@@ -106,6 +106,8 @@ if __name__ == "__main__":
         "Super_Moderators": [
             "channel_owner"
         ],
+        
+        "worker_update_rate": 60,
 
         "Basic_Commands": True,
         "Chat_log": True,
@@ -115,7 +117,7 @@ if __name__ == "__main__":
         "Mini_games_pointsperwin": 100,
         "Shoutout_Auto": True,
         "Shoutout_Soft": True,
-        "Shoutout_Message": "Check out {user} at https://twitch.tv/{user}!",
+        "Shoutout_Message": "Check out {user} at https://twitch.tv/{user} !",
         "Shoutout_list": [
             "target_user1"
         ],
