@@ -6,14 +6,16 @@ from twitchAPI.chat import Chat, EventData, ChatMessage, ChatCommand
 from Databaseconn import Databaseconn
 
 class EventHandler:
-    TwitchAPI = None
-    DBConn: Databaseconn = None
-    commands = {}
-    Modules: list[Module] = []
-    counter = 1
-
     def __init__(self):
         super().__init__()
+        self.TwitchAPI = None
+        self.DBConn: Databaseconn = None
+        self.config: ConfigHandler = None
+        self.commands = {}
+        self.Modules: list[Module] = []
+        
+        self.is_recording = False
+        self.streamID = 1
         
     #assign twitch api  
     def assign_to_twitch(self, TwitchAPI):
