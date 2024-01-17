@@ -1,4 +1,5 @@
 #twitch auth
+import time
 from twitchAPI.twitch import Twitch
 from twitchAPI.helper import first
 from twitchAPI.oauth import UserAuthenticator, UserAuthenticationStorageHelper
@@ -377,11 +378,23 @@ async def twitch_setup():
     await eventsub.listen_channel_chat_message_delete(user.id,user.id, on_chat_delete_messages)
 
     logging.info("twitch setup complete")
+    lastworkedtime = int(time.time())
+    
+    update_rate = EVENT_HANDLER.config.worker_update_rate
+    logging.info(f"update rate: {update_rate}")
+    
     while True:
+        #logging.info("loop1")
         if not COMMAND_QUEUE.empty():
             command = COMMAND_QUEUE.get()
-            logging.info(command)
             await EVENT_HANDLER.on_webfrontend_message(command)
+            COMMAND_QUEUE.task_done()
+        #do worker shit
+        if int(time.time()) - lastworkedtime >= update_rate:
+            logging.info("I DID THE THING")
+            lastworkedtime = int(time.time())
+            await EVENT_HANDLER.do_worker()
+
                 
 
 def run( clientID, clientSecret, EventHandler: EventHandler):

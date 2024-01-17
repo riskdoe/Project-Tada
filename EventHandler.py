@@ -178,3 +178,7 @@ class EventHandler:
     async def on_chat_delete_messages(self, data):
         for Module in self.Modules:
             await Module.on_channel_chat_message_delete(data)
+
+    async def do_worker(self):
+        for Module in self.Modules:
+            await Module.do_worker()
