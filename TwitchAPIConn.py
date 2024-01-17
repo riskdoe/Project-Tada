@@ -342,11 +342,7 @@ async def twitch_setup():
     
     streamtracker = StreamTracker(EVENT_HANDLER)
     EVENT_HANDLER.AddModule(streamtracker)
-    
-    
-    
-    
-    
+
     #add all the commands
     commands = EVENT_HANDLER.Get_commands()
     
