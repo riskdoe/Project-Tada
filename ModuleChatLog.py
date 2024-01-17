@@ -4,6 +4,7 @@ from fastapi import APIRouter
 from EventHandler import EventHandler
 from twitchAPI.chat import ChatMessage
 import logging
+import re as regex
 
 class cmessage():
     def __init__(self,
@@ -32,12 +33,13 @@ class ChatLog(Module):
     def __init__(self, eventHandler: EventHandler):
         super().__init__("ChatLog" , eventHandler)
         logging.info("ChatLog module loaded")
-
+        self.reg = "/[^a-z0-9]/gi"
 #data: ChatMessage
     async def on_message(self, data: ChatMessage):
-        message = cmessage(data.id, data.user.name, data.text, data.sent_timestamp)
+        text = regex.sub('[^0-9a-zA-Z:)(]+', ' ', data.text)
+        message = cmessage(data.id, data.user.name, text, data.sent_timestamp)
         messages.append(message)
-        logging.info(f'{self.name}: {data.user.name}: {data.text}')
-        self.event_Handler.DBConn.AddMessage(data)
+        logging.info(f'{self.name}: {data.user.name}: {text}')
+        self.event_Handler.DBConn.AddMessage(message)
 
 
