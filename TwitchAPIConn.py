@@ -171,26 +171,9 @@ async def on_moderator_add(data: ChannelModeratorAddEvent):
 async def on_moderator_remove(data: ChannelModeratorRemoveEvent):
     await EVENT_HANDLER.on_moderator_remove(data)
 
-#on channel points reward add
-async def on_channel_points_reward_add(data: ChannelPointsCustomRewardAddEvent):
-    await EVENT_HANDLER.on_channel_points_reward_add(data)
-    
-#on channel points reward update
-async def on_channel_points_reward_update(data: ChannelPointsCustomRewardUpdateEvent):
-    await EVENT_HANDLER.on_channel_points_reward_update(data)
-    
-
-#on channel points reward remove
-async def on_channel_points_reward_remove(data: ChannelPointsCustomRewardRemoveEvent):
-    await EVENT_HANDLER.on_channel_points_reward_remove(data)
-
 #on channel points reward redeem
 async def on_channel_points_reward_redeem(data: ChannelPointsCustomRewardRedemptionAddEvent):
     await EVENT_HANDLER.on_channel_points_reward_redeem(data)
-
-#on channel points reward redeem update
-async def on_channel_points_reward_redeem_update(data: ChannelPointsCustomRewardRedemptionUpdateEvent):
-    await EVENT_HANDLER.on_channel_points_reward_redeem_update(data)
     
 #on poll begin
 async def on_poll_begin(data: ChannelPollBeginEvent):
@@ -381,11 +364,7 @@ async def twitch_setup():
     await eventsub.listen_channel_unban(user.id, on_unban)
     await eventsub.listen_channel_moderator_add(user.id, on_moderator_add)
     await eventsub.listen_channel_moderator_remove(user.id, on_moderator_remove)
-    await eventsub.listen_channel_points_custom_reward_add(user.id, on_channel_points_reward_add)
-    await eventsub.listen_channel_points_custom_reward_update(user.id, on_channel_points_reward_update)
-    await eventsub.listen_channel_points_custom_reward_remove(user.id, on_channel_points_reward_remove)
     await eventsub.listen_channel_points_custom_reward_redemption_add(user.id, on_channel_points_reward_redeem)
-    await eventsub.listen_channel_points_custom_reward_redemption_update(user.id, on_channel_points_reward_redeem_update)
     await eventsub.listen_channel_poll_begin(user.id, on_poll_begin)
     await eventsub.listen_channel_poll_progress(user.id, on_poll_progress)
     await eventsub.listen_channel_poll_end(user.id, on_poll_end)
