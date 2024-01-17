@@ -27,6 +27,15 @@ class EventHandler:
     def assign_to_config(self, config):
         self.config = config
     
+    def go_live(self,streamID):
+        self.is_recording = True
+        self.streamID = streamID
+        
+    def go_offline(self):
+        self.is_recording = False
+        self.streamID = 1
+        
+    
     #add module
     def AddModule(self, Module: Module):
         self.Modules.append(Module)

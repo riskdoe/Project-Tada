@@ -115,7 +115,21 @@ class CommandHandler(Module):
             self.event_Handler.DBConn.EditBasicCommand(param1, param2)
             logging.info(f"CommandHandler.edit_command: Params {cmd.parameter}")
             await self.event_Handler.send_message(f"Command {param1} edited")
-            
+
+    async def get_stats(self,cmd: ChatCommand):
+        logging.info(f"CommandHandler: {cmd.name} command called")
+        if len(cmd.parameter) == 0:
+            user = cmd.user.name
+            stats = self.event_Handler.DBConn.get_user_stats(user)
+            await self.event_Handler.send_message(f'{user}: total watchtime: {stats["totalwatchtime"] / 60}Mins, total messages: {stats["totalmessages"]}, total streams veiwed: {stats["totalstreamsveiwed"]}')
+        else:
+            user = cmd.parameter
+            stats = self.event_Handler.DBConn.get_user_stats(user)
+            if stats == None:
+                await self.event_Handler.send_message(f'{user} not found')
+            else:
+                await self.event_Handler.send_message(f'{user}: total watchtime: {stats["totalwatchtime"] / 60}Mins, total messages: {stats["totalmessages"]}, total streams veiwed: {stats["totalstreamsveiwed"]}')
+
 
 #=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=
 
@@ -137,6 +151,7 @@ class CommandHandler(Module):
         self.commands["edit_command"] = self.edit_command
         self.commands["ban"] = self.ban_command
         self.commands["unban"] = self.unban_command
+        self.commands["stats"] = self.get_stats
         
         self.commands["faq"] = self.Faq_command
         self.commands["rules"] = self.Rules_command
