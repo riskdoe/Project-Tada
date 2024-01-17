@@ -316,10 +316,9 @@ class MinigameSystem(Module):
         self.current_game = None
         #create minigame commands
         self.event_Handler.TwitchAPI.add_command("signup", self.on_signup)
-        self.event_Handler.TwitchAPI.add_command("minigamehelp",self.minigame_help)
         self.event_Handler.TwitchAPI.add_command("mghelp", self.minigame_help)
-        self.event_Handler.TwitchAPI.add_command("points", self.user_get_points)
-        self.event_Handler.TwitchAPI.add_command("stats", self.user_get_stats)
+        self.event_Handler.TwitchAPI.add_command("mgpoints", self.user_get_points)
+        self.event_Handler.TwitchAPI.add_command("mgstats", self.user_get_stats)
         self.event_Handler.TwitchAPI.CHAT.register_command("starttrivia", self.start_triva,command_middleware=[UsrRestriction(allowed_users=self.event_Handler.TwitchAPI.PERMITTED_USERS)])
         self.event_Handler.TwitchAPI.CHAT.register_command("startwordle", self.start_wordle,command_middleware=[UsrRestriction(allowed_users=self.event_Handler.TwitchAPI.PERMITTED_USERS)])
         
