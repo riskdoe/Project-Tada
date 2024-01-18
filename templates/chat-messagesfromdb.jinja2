@@ -1,0 +1,5 @@
+<ul>
+    {% for message in messages %}
+        <li><span id="username">{{ message[0] }}</span> : <span id="message">{{ message[1] }}</span></li>
+    {% endfor %}
+</ul>

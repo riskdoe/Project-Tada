@@ -1,0 +1,43 @@
+
+<div
+    hx-get="/api/v1/minigamebox"
+    hx-trigger="load delay:1s"
+    hx-swap="outerHTML">
+    {% if game == 'trivia' %}
+        {% if roundover == 'true' %}
+            <h2>Last game: Trivia</h2>
+        {% endif %}
+        {% if roundover == 'false' %}
+            <h2>Running game: Trivia</h2>
+        {% endif %} 
+        <h3>Question: {{ question }}</h3>
+        <ul>
+            {% for answer in answers %}
+            <li>{{ answer }}</li>
+            {% endfor %}
+        </ul>
+        <p>Correct answer: {{ correctanswer }}</p>
+        <p>Number of guesses: {{ number_of_attempts }}</p>
+        <p>Round Winner: {{ winner }}</p>
+    {% endif %}
+
+    {% if game == 'wordle' %}
+        {% if roundover == 'true' %}
+            <h2>Last game: wordle</h2>
+        {% endif %}
+        {% if roundover == 'false' %}
+            <h2>Running game: wordle</h2>
+        {% endif %} 
+        <h3>Word: {{ roundword }}</h3>
+        <p>Number of guesses: {{ number_of_attempts }}</p>
+        <p>Guessed Words: {{ guessedletters }}</p>
+        <p>Wrong letters: {{ wrongletters }}</p>
+        <p>Misplassed letters: {{ misplacedletters }}</p>
+        <p>Correct letters: {{ correctletters }}</p>
+        <p>Round Winner: {{ winner }}</p>
+    {% endif %}
+    
+    {% if game == 'none' %}
+    <h2>No game running</h2>
+    {% endif %}
+</div>

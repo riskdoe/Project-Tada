@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hello FastAPI-HTMX</title>
+</head>
+
+<body>
+</body>
+    <h1> Message Test </h1>
+    <button
+        hx-get="/api/v1/messages"
+        hx-swap="innerHTML"
+        hx-target="#message_list"
+
+    >
+        load current instance messages
+    </button>
+    <button
+        hx-get="messagestest"
+        hx-swap="innerHTML"
+        hx-target="#message_list"
+
+    >
+        Load All Messages
+    </button>
+    <br>
+    <button
+        hx-get="/api/v1/start_trivia"
+        hx-swap="none"
+        hx-on::after-request="this.reset()"
+    >
+        Start Trivia
+    </button>
+
+    <button
+        hx-get="/api/v1/start_wordle"
+        hx-swap="none"
+        hx-on::after-request="this.reset()"
+    >
+        Start Wordle
+    </button>
+    <br>
+    <button
+        hx-get="/api/v1/testing/startstream"
+        hx-swap="none"
+        hx-on::after-request="this.reset()"
+    >
+        Start Stream Stats Recording
+    </button>
+
+    <button
+        hx-get="/api/v1/testing/endstream"
+        hx-swap="none"
+        hx-on::after-request="this.reset()"
+    >
+        End Stream Stats Recording
+    </button>
+
+    <div id="message_list"></div>
+    <form id="sendmessage" 
+    hx-post="/api/v1/send_message/"
+    hx-swap="none"
+    hx-on::after-request="this.reset()"
+    >
+        <input type="text" if="TwitchMessage" name="TwitchMessage" placeholder="Message...">
+        <button type="submit">Submit</button>
+    </form>
+
+    <div id="minigame"
+    hx-get="/api/v1/minigamebox"
+    hx-trigger="load"
+    >
+    </div>
+
+    <script src="https://unpkg.com/htmx.org@1.9.6"></script>
+
+
+
+</html>

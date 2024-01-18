@@ -4,14 +4,13 @@ import os
 import sqlite3
 from Databaseconn import Databaseconn
 from EventHandler import EventHandler
+import APIendpoints
+from threading import Thread
 
 import TwitchAPIConn
-from TwitchAPIConn import router as twitch_api_router
+
 import logging
 
-from fastapi import FastAPI
-import uvicorn
-from threading import Thread
 
 
 
@@ -23,24 +22,6 @@ eventHandler: EventHandler = None
 
 # Existing code...
 
-# Create a new FastAPI application
-app = FastAPI()
-app.include_router(twitch_api_router, prefix="/api/v1")
-
-# Define a route
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
-
-# Function to run FastAPI server
-def start_fastapi():
-    uvicorn.run(app, host="127.0.0.1", port=8080)
-    try:
-        input('enter to exit')
-    except KeyboardInterrupt:
-        pass
-    finally:
-        exit()
 
 def start_twitch():
         
@@ -55,9 +36,6 @@ def start_twitch():
     consolehandler = logging.StreamHandler()
     consolehandler.setFormatter(logFormatter)
     rootlogger.addHandler(consolehandler)
-    
-    #grab channel details
-    config = None
     
     #check if config file exists
     if not os.path.exists("config.json"):
@@ -159,7 +137,7 @@ if __name__ == "__main__":
             exit()
     
     # Run FastAPI server in a separate thread
-    fastapi_thread = Thread(target=start_fastapi)
+    fastapi_thread = Thread(target=APIendpoints.start_fastapi)
     fastapi_thread.start()
     
     start_twitch()

@@ -18,7 +18,8 @@ from twitchAPI.object.api import GetChattersResponse
 from twitchAPI.object.api import Chatter as twitchChatter
 
 #fast Api
-from fastapi import FastAPI, Request
+from typing import Annotated
+from fastapi import FastAPI, Request, Form
 from fastapi.responses import RedirectResponse
 from EventHandler import EventHandler
 
@@ -92,6 +93,7 @@ async def login_confirm():
 
 #router for starting events in twitch thread
 router = APIRouter()
+
 @router.get("/start_trivia")
 def start_event():
     global COMMAND_QUEUE
@@ -115,6 +117,16 @@ def start_event():
     global COMMAND_QUEUE
     COMMAND_QUEUE.put("endstream")
     return "endstream sent"
+
+def construct_send_message():
+    pass
+
+@router.post("/send_message/")
+def send_message(TwitchMessage: Annotated[str,Form()]):
+    global COMMAND_QUEUE
+    command = {"Send_message": TwitchMessage}
+    COMMAND_QUEUE.put(command)
+    return "message sent"
 
 #will be called when the bot is ready so we can connect to target
 async def on_ready(ready_event: EventData):
@@ -383,6 +395,9 @@ async def twitch_setup():
         #logging.info("loop1")
         if not COMMAND_QUEUE.empty():
             command = COMMAND_QUEUE.get()
+            if type(command) == dict:
+                if "Send_message" in command:
+                    await send_message(command["Send_message"])
             await EVENT_HANDLER.on_webfrontend_message(command)
             COMMAND_QUEUE.task_done()
         #do worker shit

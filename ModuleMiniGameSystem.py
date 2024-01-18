@@ -8,6 +8,60 @@ import json
 import random
 import os
 from twitchAPI.chat.middleware import UserRestriction as UsrRestriction
+from fastapi import APIRouter, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from fastapi_htmx import htmx, htmx_init
+from pathlib import Path
+
+
+router = APIRouter()
+
+htmx_init(templates = Jinja2Templates(directory="templates"))
+
+game = "none"
+roundOver = "false"
+roundcorrectanswer = ""
+roundwinner = ""
+roundquestion = ""
+roundanswers = ""
+roundcategory = ""
+roundguessedletters = []
+roundwrongletters = []
+roundcorrectletters = []
+roundmisplacedletters = []
+numberofguesses = 0
+
+
+def construct_minigamebox():
+    if game == "trivia":
+        return {"game": game,
+                "roundover": roundOver,
+                "winner": roundwinner,
+                "question": roundquestion,
+                "answers": roundanswers,
+                "correctanswer": roundcorrectanswer,
+                "category": roundcategory,
+                "number_of_attempts": numberofguesses}
+    elif game == "wordle":
+        return {"game": game,
+                "roundover": roundOver,
+                "winner": roundwinner,
+                "roundword": roundcorrectanswer,
+                "guessedletters": roundguessedletters, 
+                "wrongletters": roundwrongletters,
+                "misplacedletters": roundmisplacedletters,
+                "correctletters": roundcorrectletters,
+                "number_of_attempts": numberofguesses}
+    else:
+        return {"game": game}
+
+@router.get("/minigamebox", response_class=HTMLResponse)
+@htmx("minigamebox", "index", construct_minigamebox)
+def get_minigamebox(request: Request):
+    pass
+
+
 
 
 class minigameplayer():
@@ -48,6 +102,8 @@ class minigame_trivia():
 
     #run when user guesses answer
     async def user_answer(self, cmd: ChatCommand):
+        global roundOver, roundwinner, numberofguesses
+        numberofguesses += 1
         #check if user is signed up
         if not any(x.name == cmd.user.name for x in self.Creator.get_players()):
             await self.Event_Handler.send_message(f"{cmd.user.name} is not signed up for the minigame system")
@@ -65,6 +121,10 @@ class minigame_trivia():
         
         #if correct end round and assign points
         if attempt:
+            
+            roundOver = "true"
+            roundwinner = cmd.user.name
+            
         
             self.RoundOver = attempt
             self.Winner = cmd.user.name
@@ -103,6 +163,7 @@ class minigame_trivia():
 
     #create game
     def __init__(self, Creator, Eventhandler: EventHandler, Chat: Chat):
+        self.type = "trivia"
         self.Event_Handler = Eventhandler
         self.Chat = Chat
         self.Creator = Creator
@@ -114,7 +175,18 @@ class minigame_trivia():
         self.RoundQuestion = trivia_question(RoundQuestionJson["question"], RoundQuestionJson["correctAnswerChoices"], RoundQuestionJson["correctAnswerIndex"], "Example")
         self.RoundOver = False
         self.Winner = ""
-        #create commands for minigame
+        #assign data for webfrontend
+        global game, roundOver, roundwinner, roundquestion, roundanswers, roundcorrectanswer, roundcategory, numberofguesses
+        game = "trivia"
+        roundOver = "false"
+        roundcorrectanswer = self.RoundQuestion.answers[int(self.RoundQuestion.correctAnswerIndex)]
+        roundwinner = "no one yet"
+        roundquestion = self.RoundQuestion.question
+        roundanswers = self.RoundQuestion.answers
+        roundcategory = self.RoundQuestion.category
+        numberofguesses = 0
+        logging.info(f"trivia started. question is: {self.RoundQuestion}")
+        logging.info(f"trivia started. answer is: {self.RoundQuestion.answers[int(self.RoundQuestion.correctAnswerIndex)]}")
 
     #return question
     def get_question(self):
@@ -153,6 +225,7 @@ class minigame_trivia():
 #TODO: make hangman game
 class minigame_wordle():
     def __init__(self, Creator, Eventhandler: EventHandler, Chat: Chat):
+        self.type = "wordle"
         self.Creator = Creator
         self.event_Handler = Eventhandler
         self.Chat = Chat        
@@ -163,13 +236,35 @@ class minigame_wordle():
         self.word = self.word.lower()    
         logging.info(f"wordle started. word is: {self.word}")
         
+        self.correct_letters = None
+        self.misplaced_letters = None
+        self.misplaced_letters = None
+        
+        global game, roundOver, roundwinner, roundcorrectanswer, roundguessedletters, roundwrongletters, roundmisplacedletters, roundcorrectletters, numberofguesses
+                
+        game = "wordle"
+        roundOver = "false"
+        roundwinner = "no one yet"
+        roundcorrectanswer = self.word
+        roundguessedletters = []
+        roundwrongletters = []
+        roundmisplacedletters = []
+        roundcorrectletters = []
+        numberofguesses = 0
+        
+
+        
     async def make_guess(self, cmd:ChatCommand):
+        global roundOver, roundwinner, roundcorrectanswer, roundguessedletters, roundwrongletters, roundmisplacedletters, roundcorrectletters, numberofguesses
+
         if len(cmd.parameter) != 5:
             await self.event_Handler.send_message("Guess a 5 letter word")
             return
         guess = cmd.parameter.lower()
         #if they guess the word assign points
         if guess == self.word:
+            roundOver = "true"
+            roundwinner = cmd.user.name
             await cmd.reply(f"{cmd.user.name} Correctly guessed the word {self.word}")
             await self.event_Handler.send_message(f"{cmd.user.name} won the round and gained 100 points, Round over.")
             self.event_Handler.TwitchAPI.remove_command("guess")
@@ -191,6 +286,8 @@ class minigame_wordle():
             misplaced_letters = set(guess) & set(self.word) - correct_letters
             wrong_letters = set(guess) - set(self.word)
             
+
+            
             #tidy up output
             output1 = ""
             output2 = ""
@@ -209,6 +306,21 @@ class minigame_wordle():
                 output3 = "No wrong letters"
             elif len(wrong_letters) >= 1:
                 output3 = "wrong letters: " + " ,".join(sorted(wrong_letters))
+            
+            numberofguesses += 1
+            guesslist = guess.split()
+            for letter in guesslist:
+                if letter not in roundguessedletters:
+                    roundguessedletters.append(letter)
+            for letter in wrong_letters:
+                if letter not in roundwrongletters:
+                    roundwrongletters.append(letter)
+            for letter in correct_letters:
+                if letter not in roundcorrectletters:
+                    roundcorrectletters.append(letter)
+            for letter in misplaced_letters:
+                if letter not in roundmisplacedletters:
+                    roundmisplacedletters.append(letter)
             
             #send output   
             await cmd.reply(f"guessed {guess}")

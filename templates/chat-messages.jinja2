@@ -1,0 +1,10 @@
+<ul
+    hx-get="/api/v1/messages"
+    hx-trigger="load delay:1s"
+    hx-swap="outerHTML"
+>
+    {% for message in messages %}
+        <li><span id="username">{{ message[1] }}</span> : <span id="message">{{ message[2] }}</span></li>
+    {% endfor %}
+</ul>
+

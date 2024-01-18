@@ -271,3 +271,12 @@ class Databaseconn():
             "totalmessages": totalmessages
             }
         return stats
+
+
+
+## stuff for frontend
+
+    def get_messages(self):
+        self.cursor.execute('SELECT "UserName", "Message" FROM "Messages"')
+        out = self.cursor.fetchall()
+        return out

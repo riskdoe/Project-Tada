@@ -1,6 +1,10 @@
 #chat log module
 from Module import Module
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from fastapi_htmx import htmx, htmx_init
+from pathlib import Path
 from EventHandler import EventHandler
 from twitchAPI.chat import ChatMessage
 import logging
@@ -23,10 +27,19 @@ class cmessage():
 
 messages: list[cmessage] = []
 router = APIRouter()
-@router.get("/messages")
-def get_messages():
-    
-    return messages
+
+htmx_init(templates = Jinja2Templates(directory="templates"))
+
+def construct_messages():
+    out = []
+    for message in messages:
+        out.append([message.id, message.user, message.text])
+    return {"messages": out}
+
+@router.get("/messages", response_class=HTMLResponse)
+@htmx("chat-messages", "index", construct_messages)
+async def get_messages(request: Request):
+    pass
 
 
 class ChatLog(Module):
