@@ -5,14 +5,13 @@ import sqlite3
 from Databaseconn import Databaseconn
 from EventHandler import EventHandler
 
-import TwitchApiConn
-from TwitchApiConn import router as twitch_api_router
+import TwitchAPIConn
+from TwitchAPIConn import router as twitch_api_router
 import logging
 
 from fastapi import FastAPI
 import uvicorn
 from threading import Thread
-from ModuleChatLog import router as chat_log_router
 
 
 
@@ -26,7 +25,6 @@ eventHandler: EventHandler = None
 
 # Create a new FastAPI application
 app = FastAPI()
-app.include_router(chat_log_router, prefix="/api/v1")
 app.include_router(twitch_api_router, prefix="/api/v1")
 
 # Define a route
@@ -85,13 +83,13 @@ def start_twitch():
     
     eventHandler = EventHandler()
     dbconn = Databaseconn(eventHandler, config_handler.channel)
-    eventHandler.assign_to_twitch(TwitchApiConn)
+    eventHandler.assign_to_twitch(TwitchAPIConn)
     eventHandler.assign_to_DBConn(dbconn)
     eventHandler.assign_to_config(config_handler)
     
     # run app 
     # connect to twitch
-    TwitchApiConn.run(
+    TwitchAPIConn.run(
         config_handler.clientID,
         config_handler.clientSecret,
         eventHandler)
