@@ -130,7 +130,7 @@ class StreamTracker(Module):
     async def on_webfrontend_message(self, command:str):
         logging.info("StreamTracker.on_webfrontend_message: recieved command")
         logging.info(command)
-        if command == "streamstream":
+        if command == "startstream":
             logging.info("testing start stream")
             await self.fake_start_stream()
         elif command == "endstream":

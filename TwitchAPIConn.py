@@ -104,11 +104,11 @@ def start_event():
     COMMAND_QUEUE.put("start_wordle")
     return "wordle started"
 
-@router.get("/testing/streamstream")
+@router.get("/testing/startstream")
 def start_event():
     global COMMAND_QUEUE
-    COMMAND_QUEUE.put("streamstream")
-    return "streamstream sent"
+    COMMAND_QUEUE.put("startstream")
+    return "startstream sent"
 
 @router.get("/testing/endstream")
 def start_event():
@@ -387,7 +387,6 @@ async def twitch_setup():
             COMMAND_QUEUE.task_done()
         #do worker shit
         if int(time.time()) - lastworkedtime >= update_rate:
-            logging.info("I DID THE THING")
             lastworkedtime = int(time.time())
             await EVENT_HANDLER.do_worker()
 
