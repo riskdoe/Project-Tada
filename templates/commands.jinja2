@@ -1,0 +1,95 @@
+<div id="commandbox" class="flex flex-col h-full">
+    <script>
+        $('.delete').each(function(){
+            $(this).click(function(){
+                $(this).closest('tr').remove();
+            });
+        });
+        $('.refreshplz').each(function(){
+            $(this).click(function(){
+                location.reload();
+            });
+        });
+    </script>
+    <div id="top" class = "h-fit">
+        <div id="commandboxheader" class = "h-fit">
+            <h2 class="text-3xl mb-2">Command settings</h2>
+
+            <button id="refreshcommands" 
+                class="mb-2 shadow-md shadow-indigo-500/50 refreshcommands w-1/6 bg-slate-900 ring-2 ring-violet-800/50 text-slate-300 p-2 rounded"
+                hx-get="/api/v1/commands"
+                hxswap="outerHTML scroll:bottom"
+                hx-target="#commandbox"
+            >
+            Refresh
+            </button>
+        </div>
+        <div id="add_new_command">
+            <h3 class="text-2xl mb-2">Add a command</h3>
+            <form id="addcommand"
+                hx-post = "/api/v1/add_command/"
+                hx-swap="none"
+                hx-on::after-request="this.reset()"
+            >
+                <div class= "flex space-x-4 mb-2">
+                    <input class="bg-transparent text-slate-50 p-2 ring-2 ring-violet-800/50 w-1/2 rounded" type="text" name="commandname" placeholder="Command name...">
+                    <input class="bg-transparent text-slate-50 p-2 ring-2 ring-violet-800/50 w-1/2 rounded" type="text" name="commandoutput" placeholder="Response...">
+                </div>
+                <div class="flex space-x-2">
+                <button type="submit"
+                class="refreshplz mr-1 shadow-md shadow-indigo-500/50 w-1/6 bg-slate-900 ring-2 ring-violet-800/50 text-slate-300 p-2 rounded"
+                    hx-post = "/api/v1/add_command/"
+                    hx-swap="none"
+                    onclick="SomeDeleteRowFunction"
+                >Add</button>
+
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if commands == 'None' %}
+        <p>There are no commands yet.</p>
+    {% endif %}
+    {% if commands != 'None' %}
+        <h3 class="text-2xl mb-2">Commands</h3>
+        <div id="existing_commands" class="grow w-full overflow-y-auto h-1 scroll-smooth flex flex-col">
+            
+            <table class="table-auto border-separate border-spacing-1 w-full border border-slate-400 dark:border-slate-500 bg-white dark:bg-slate-800 text-sm shadow-sm">
+                <tr>
+                    <th class ="border border-slate-400 dark:border-slate-600 p-4 text-slate-900 dark:text-slate-200 text-left">Command</th>
+                    <th class ="border border-slate-400 dark:border-slate-600 p-4 text-slate-900 dark:text-slate-200 text-left">Response</th>
+                    <th class ="border border-slate-400 dark:border-slate-600 p-4 text-slate-900 dark:text-slate-200 text-left">Enabled</th>
+                    <th class ="border border-slate-400 dark:border-slate-600 p-4 text-slate-900 dark:text-slate-200 text-left">Options</th>
+                </tr>
+                {% for command in commands %}
+                    <tr>
+                        <td class="text-center text-base border border-slate-300 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{{ command.command }}</td>
+                        <td class="text-wrap break-words max-w-20 text-center text-base border border-slate-300 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{{ command.response }}</td>
+                        <td class="text-center text-base border border-slate-300 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{{ command.enabled }}</td>
+                        <td class="text-center text-base border border-slate-300 dark:border-slate-700 p-1 text-slate-500 dark:text-slate-400">
+                            <form id="edit {{ command.command }}"
+                            hx-post = "/api/v1/edit_command/"
+                            hx-swap="none"
+                            hx-on::after-request="this.reset()"
+                            >
+                                <input type="hidden" name="commandname" value="{{ command.command }}">
+                                <input class="bg-transparent text-slate-50 mr-2 p-2 ring-2 ring-violet-800/50 w-3/6 rounded" type="text" name="response" placeholder="New response...">
+                                <button class="shadow-md shadow-indigo-500/50 w-1/6 bg-slate-900 mr-2 ring-2 ring-violet-800/50 text-slate-300 p-2 rounded refreshplz" type="submit">Edit</button>
+                                <button
+                                class="shadow-md shadow-indigo-500/50 w-1/6 bg-slate-900 ring-2 ring-violet-800/50 text-slate-300 p-2 rounded delete"
+                                hx-put ="/api/v1/delete_command/{{ command.command }}"
+                                hx-swap="none"
+                                >Delete</button>
+                            </form>
+
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    {% endif %}
+
+
+
+</div>

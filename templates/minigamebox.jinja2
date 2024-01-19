@@ -1,16 +1,16 @@
 
-<div
+<div id="minigamebox"
     hx-get="/api/v1/minigamebox"
     hx-trigger="load delay:1s"
     hx-swap="outerHTML">
     {% if game == 'trivia' %}
         {% if roundover == 'true' %}
-            <h2>Last game: Trivia</h2>
+            <h3>Last game: Trivia</h3>
         {% endif %}
         {% if roundover == 'false' %}
-            <h2>Running game: Trivia</h2>
+            <h3>Running game: Trivia</h3>
         {% endif %} 
-        <h3>Question: {{ question }}</h3>
+        <h4>Question: {{ question }}</h4>
         <ul>
             {% for answer in answers %}
             <li>{{ answer }}</li>
@@ -23,12 +23,12 @@
 
     {% if game == 'wordle' %}
         {% if roundover == 'true' %}
-            <h2>Last game: wordle</h2>
+            <h3>Last game: wordle</h3>
         {% endif %}
         {% if roundover == 'false' %}
-            <h2>Running game: wordle</h2>
+            <h3>Running game: wordle</h3>
         {% endif %} 
-        <h3>Word: {{ roundword }}</h3>
+        <h4>Word: {{ roundword }}</h4>
         <p>Number of guesses: {{ number_of_attempts }}</p>
         <p>Guessed Words: {{ guessedletters }}</p>
         <p>Wrong letters: {{ wrongletters }}</p>
@@ -38,6 +38,6 @@
     {% endif %}
     
     {% if game == 'none' %}
-    <h2>No game running</h2>
+    <h4>No game running</h4>
     {% endif %}
 </div>

@@ -44,6 +44,8 @@ CHAT: Chat
 PERMITTED_USERS:list[str] = []
 COMMAND_QUEUE = Queue()
 
+
+
 APP_ID = None
 APP_SECRET = None
 HOST_CHANNEL = None
@@ -118,15 +120,38 @@ def start_event():
     COMMAND_QUEUE.put("endstream")
     return "endstream sent"
 
-def construct_send_message():
-    pass
-
 @router.post("/send_message/")
 def send_message(TwitchMessage: Annotated[str,Form()]):
     global COMMAND_QUEUE
     command = {"Send_message": TwitchMessage}
     COMMAND_QUEUE.put(command)
     return "message sent"
+
+@router.post("/edit_command/")
+def edit_command(commandname: Annotated[str,Form()], response: Annotated[str,Form()]):
+    global COMMAND_QUEUE
+    command = {"Edit_command": commandname, "Commandoutput": response}
+    COMMAND_QUEUE.put(command)
+    logging.info({list(command.keys())[0]})
+    return "command sent"
+
+@router.put("/delete_command/{commandname}")
+def delete_command(commandname:str):
+    global COMMAND_QUEUE
+    command = {"Delete_command": commandname}
+    COMMAND_QUEUE.put(command)
+    
+    return "command deleted"
+
+@router.post("/add_command/")
+def add_command(commandname: Annotated[str,Form()], commandoutput: Annotated[str,Form()]):
+    global COMMAND_QUEUE
+    command = {"Add_command": commandname, "Commandoutput": commandoutput}
+    COMMAND_QUEUE.put(command)
+    return "command sent"
+
+
+
 
 #will be called when the bot is ready so we can connect to target
 async def on_ready(ready_event: EventData):
@@ -390,7 +415,6 @@ async def twitch_setup():
     
     update_rate = EVENT_HANDLER.config.worker_update_rate
     logging.info(f"update rate: {update_rate}")
-    
     while True:
         #logging.info("loop1")
         if not COMMAND_QUEUE.empty():
@@ -398,6 +422,7 @@ async def twitch_setup():
             if type(command) == dict:
                 if "Send_message" in command:
                     await send_message(command["Send_message"])
+                
             await EVENT_HANDLER.on_webfrontend_message(command)
             COMMAND_QUEUE.task_done()
         #do worker shit

@@ -4,23 +4,25 @@ from EventHandler import EventHandler
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 from fastapi_htmx import htmx, htmx_init
 from pathlib import Path
 import uvicorn
 import logging
 
-
-
-
-
-#endpoint routers
+# endpoint routers
 from TwitchAPIConn import router as twitch_api_router
 from ModuleChatLog import router as chatlog_router
 from ModuleMiniGameSystem import router as minigamesystem_router
+from ModuleCommandHandler import router as commandhandler_router
 
 # Create a new FastAPI application
 app = FastAPI()
-htmx_init(templates = Jinja2Templates(directory="templates"))
+htmx_init(templates=Jinja2Templates(directory="templates"))
+
+# Mount the static folder
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
 
 databaseconn = None
 
@@ -30,6 +32,7 @@ databaseconn = None
 app.include_router(twitch_api_router, prefix="/api/v1")
 app.include_router(chatlog_router, prefix="/api/v1")
 app.include_router(minigamesystem_router, prefix="/api/v1")
+app.include_router(commandhandler_router, prefix="/api/v1")
 
 
 def construct_root_page():

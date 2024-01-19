@@ -34,7 +34,15 @@ def construct_messages():
     out = []
     for message in messages:
         out.append([message.id, message.user, message.text])
-    return {"messages": out}
+    if out == []:
+        return {"messages": [["", "", "No messages yet!"]]}
+    tofrontend = out[::-1]
+    
+    if len(tofrontend) > 250:
+        tofrontend = tofrontend[:250]
+    logging.info(f"Sending {len(tofrontend)} messages to frontend")
+    
+    return {"messages": tofrontend}
 
 @router.get("/messages", response_class=HTMLResponse)
 @htmx("chat-messages", "index", construct_messages)
