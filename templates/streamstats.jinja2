@@ -1,0 +1,35 @@
+<div id="streamstatsbox" class="h-full h-1"
+    hx-get="/api/v1/streamstats"
+    hx-trigger="load delay:1s"
+    hx-swap="outerHTML"
+>
+    <p>title: {{ title }}</p>
+    <p>game: {{ game }}</p>
+    <table class="table-auto border-separate border-spacing-1 w-full border border-slate-400 dark:border-slate-500 bg-white dark:bg-slate-800 text-sm shadow-sm">
+        <tr>
+            <td class ="border border-slate-400 dark:border-slate-600 p-1 text-slate-900 dark:text-slate-200 text-left">Followers Gained</td>
+            <td class="text-center text-base border border-slate-300 dark:border-slate-700 p-1 text-slate-500 dark:text-slate-400">{{ follows }}</td>
+            <td class ="border border-slate-400 dark:border-slate-600 p-1 text-slate-900 dark:text-slate-200 text-left">Subs Gained</td>
+            <td class="text-center text-base border border-slate-300 dark:border-slate-700 p-1 text-slate-500 dark:text-slate-400">{{ subs }}</td>
+        </tr>
+        <tr>
+            <td class ="border border-slate-400 dark:border-slate-600 p-1 text-slate-900 dark:text-slate-200 text-left">Gift Subs Gained</td>
+            <td class="text-center text-base border border-slate-300 dark:border-slate-700 p-1 text-slate-500 dark:text-slate-400">{{ giftsubs }}</td>
+            <td class ="border border-slate-400 dark:border-slate-600 p-1 text-slate-900 dark:text-slate-200 text-left">Bits Donated</td>
+            <td class="text-center text-base border border-slate-300 dark:border-slate-700 p-1 text-slate-500 dark:text-slate-400">{{ cheers }}</td>
+        </tr>
+        <tr>
+            <td class ="border border-slate-400 dark:border-slate-600 p-1 text-slate-900 dark:text-slate-200 text-left">Shoutouts Recved</td>
+            <td class="text-center text-base border border-slate-300 dark:border-slate-700 p-1 text-slate-500 dark:text-slate-400">{{ shoutouts }}</td>
+            <td class ="border border-slate-400 dark:border-slate-600 p-1 text-slate-900 dark:text-slate-200 text-left">Raids Recved</td>
+            <td class="text-center text-base border border-slate-300 dark:border-slate-700 p-1 text-slate-500 dark:text-slate-400">{{ raids }}</td>
+        </tr>
+        <tr>
+            <td class ="border border-slate-400 dark:border-slate-600 p-1 text-slate-900 dark:text-slate-200 text-left">Chatters</td>
+            <td class="text-center text-base border border-slate-300 dark:border-slate-700 p-1 text-slate-500 dark:text-slate-400">{{ mumberofactivechatters }}</td>
+            <td class ="border border-slate-400 dark:border-slate-600 p-1 text-slate-900 dark:text-slate-200 text-left">Messages Sent</td>
+            <td class="text-center text-base border border-slate-300 dark:border-slate-700 p-1 text-slate-500 dark:text-slate-400">{{ numberofmessages }}</td>
+        </tr>
+    </table>
+</div>
+

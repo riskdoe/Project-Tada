@@ -211,7 +211,7 @@ class Databaseconn():
         self.cursor.execute(f"INSERT INTO 'stat_total_watchtime' ('User', 'WatchTime') VALUES ('{user}', '{watchtime}')")
         self.db.commit()
 
-    def add_stream(self, instance:stream_instance):
+    def add_stream(self, instance: stream_instance):
         logging.info("Databaseconn.dumpstreamdetails: dumping stream details")
         self.cursor.execute(f'INSERT INTO "Stream_Stat"("StreamStart", "StreamEnd", "Duration", "NumberofChatters", "NumberofMessages") VALUES ("{instance.stream_start_time}", "{instance.stream_end_time}", "{instance.stream_duration}", "{len(instance.active_chatter)}", "{instance.num_of_messages_during_stream}")')
         self.db.commit()

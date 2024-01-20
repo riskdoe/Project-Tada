@@ -12,11 +12,11 @@ import re as regex
 
 class cmessage():
     def __init__(self,
-                 id: str,
+                 ident: str,
                  user: str,
                  text: str,
                  timestamp: int):
-        self.id = id
+        self.id = ident
         self.user = user
         self.text = text
         self.timestamp = timestamp
@@ -62,5 +62,11 @@ class ChatLog(Module):
         messages.append(message)
         logging.info(f'{self.name}: {data.user.name}: {text}')
         self.event_Handler.DBConn.AddMessage(message)
+    
+    async def on_webfrontend_message(self, command):
+        
+        if "Send_message" in command:
+            output = cmessage("0", "(tada)", command["Send_message"], 0)
+            messages.append(output)
 
 

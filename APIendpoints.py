@@ -15,6 +15,7 @@ from TwitchAPIConn import router as twitch_api_router
 from ModuleChatLog import router as chatlog_router
 from ModuleMiniGameSystem import router as minigamesystem_router
 from ModuleCommandHandler import router as commandhandler_router
+from ModulesStreamTracker import router as streamtracker_router
 
 # Create a new FastAPI application
 app = FastAPI()
@@ -33,6 +34,7 @@ app.include_router(twitch_api_router, prefix="/api/v1")
 app.include_router(chatlog_router, prefix="/api/v1")
 app.include_router(minigamesystem_router, prefix="/api/v1")
 app.include_router(commandhandler_router, prefix="/api/v1")
+app.include_router(streamtracker_router, prefix="/api/v1")
 
 
 def construct_root_page():
