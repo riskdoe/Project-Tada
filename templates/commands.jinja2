@@ -59,14 +59,45 @@
                 <tr>
                     <th class ="border border-slate-400 dark:border-slate-600 p-4 text-slate-900 dark:text-slate-200 text-left">Command</th>
                     <th class ="border border-slate-400 dark:border-slate-600 p-4 text-slate-900 dark:text-slate-200 text-left">Response</th>
-                    <th class ="border border-slate-400 dark:border-slate-600 p-4 text-slate-900 dark:text-slate-200 text-left">Enabled</th>
                     <th class ="border border-slate-400 dark:border-slate-600 p-4 text-slate-900 dark:text-slate-200 text-left">Options</th>
+                    <th class ="border border-slate-400 dark:border-slate-600 p-4 text-slate-900 dark:text-slate-200 text-left">Enabled</th>
                 </tr>
+                <tr>
+                    <td class="text-center text-base border border-slate-300 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400" text-left"> Where</td>
+                    <td colspan="2" class="text-center text-base border border-slate-300 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400" text-left">
+                    <form class="self-center" id="update where"
+                        hx-post = "/api/v1/update_where/"
+                        hx-swap="none"
+                        hx-on::after-request="this.reset()"
+                    >
+                        <div class="flex justify-center flex-auto self-center">
+                            <select class="bg-transparent text-slate-50 mr-2 p-2 ring-2 ring-violet-800/50 rounded" name="Channel" id="Channel">
+                                <option {% if channel == '1' %} selected {% endif %} value="1">1</option>
+                                <option {% if channel == '2' %} selected {% endif %} value="2">2</option>
+                                <option {% if channel == '3' %} selected {% endif %} value="3">3</option>
+                                <option {% if channel == '4' %} selected {% endif %} value="4">4</option>
+                                <option {% if channel == '5' %} selected {% endif %} value="5">5</option>
+                                <option {% if channel == '6' %} selected {% endif %} value="6">6</option>
+                                <option {% if channel == '7' %} selected {% endif %} value="7">7</option>
+                                <option {% if channel == '8' %} selected {% endif %} value="8">8</option>
+                                <option {% if channel == '9' %} selected {% endif %} value="9">9</option>
+                                <option {% if channel == '10' %} selected {% endif %} value="10">10</option>
+                            </select>
+                            <select class="bg-transparent text-slate-50 mr-2 p-2 ring-2 ring-violet-800/50 w-3/6 rounded" name="Location" id="Location">
+                                {% for place in locations %}
+                                    <option {% if place == selectedloca %} selected {% endif %} value="{{ place }}">{{ place }}</option>
+                                {% endfor %}
+                            </select>
+                            <button class="shadow-md shadow-indigo-500/50 w-1/6 bg-slate-900 mr-2 ring-2 ring-violet-800/50 text-slate-300 p-2 rounded refreshplz" type="submit">Update</button>
+
+                        </div>
+                    </form>
+                    </td>
+                    <td class="text-center text-base border border-slate-300 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400"> enabled </td>
                 {% for command in commands %}
                     <tr>
                         <td class="text-center text-base border border-slate-300 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{{ command.command }}</td>
                         <td class="text-wrap break-words max-w-20 text-center text-base border border-slate-300 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{{ command.response }}</td>
-                        <td class="text-center text-base border border-slate-300 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{{ command.enabled }}</td>
                         <td class="text-center text-base border border-slate-300 dark:border-slate-700 p-1 text-slate-500 dark:text-slate-400">
                             <form id="edit {{ command.command }}"
                             hx-post = "/api/v1/edit_command/"
@@ -84,6 +115,8 @@
                             </form>
 
                         </td>
+                        <td class="text-center text-base border border-slate-300 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{{ command.enabled }}</td>
+
                     </tr>
                 {% endfor %}
             </table>

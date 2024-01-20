@@ -37,6 +37,8 @@ from ModuleMiniGameSystem import MinigameSystem
 from ModuleShoutouts import Shoutout
 from ModulesStreamTracker import StreamTracker
 
+import webbrowser
+
 
 TWITCH: Twitch
 AUTH: UserAuthenticator
@@ -146,7 +148,17 @@ def delete_command(commandname:str):
 @router.post("/add_command/")
 def add_command(commandname: Annotated[str,Form()], commandoutput: Annotated[str,Form()]):
     global COMMAND_QUEUE
+    commandname = commandname.replace(" ", "")
     command = {"Add_command": commandname, "Commandoutput": commandoutput}
+    COMMAND_QUEUE.put(command)
+    return "command sent"
+
+
+@router.post("/update_where/")
+def update_where(Channel: Annotated[str,Form()], Location: Annotated[str,Form()]):
+    global COMMAND_QUEUE
+    #logging.info(f"updating where to {Location} in {Channel}")
+    command = {"Update_where": Channel, "Location": Location}
     COMMAND_QUEUE.put(command)
     return "command sent"
 
@@ -415,6 +427,7 @@ async def twitch_setup():
     
     update_rate = EVENT_HANDLER.config.worker_update_rate
     logging.info(f"update rate: {update_rate}")
+    webbrowser.open('http://127.0.0.1:8080/')
     while True:
         #logging.info("loop1")
         if not COMMAND_QUEUE.empty():

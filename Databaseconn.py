@@ -144,10 +144,17 @@ class Databaseconn():
     def GetBasicCommands(self):
         commands = []
         self.cursor.execute('SELECT "Alias", "Return" FROM "BasicCommands"')
-        commands = self.cursor.fetchall()
-        return commands
+        commands: list = self.cursor.fetchall()
+        commandlist = []
+        for item in commands:
+            newitem = list(item)
+            newitem[0] = newitem[0].replace(" ", "")
+            logging.info(f"Databaseconn.GetBasicCommands: item: {type(newitem)}")
+            commandlist.append(newitem)
+        return commandlist
 
     def AddBasicCommand(self, Alias:str, Output:str):
+        Alias = Alias.replace(" ", "")
         self.cursor.execute(f'INSERT INTO "BasicCommands" ("Alias", "Return") VALUES ("{Alias}", "{Output}")')
         self.db.commit()
 

@@ -109,6 +109,22 @@ if __name__ == "__main__":
         "rules_list": [
             "rule1",
             "rule2"
+        ],
+        
+        
+        "lastwhereChannel": 3,
+        "wherelocations": [
+            "tech basement",
+            "Avalon puris",
+            "Tara Shadow Mission",
+            "Tailteann Shadow Mission",
+            "Ably Dungeon",
+            "Ciar Dungeon",
+            "Rundal Dungeon",
+            "Glenn",
+            "Crom Bas",
+            "Tir Chonaill",
+            "Dunbarton"
         ]
     }
         

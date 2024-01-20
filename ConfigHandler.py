@@ -35,9 +35,7 @@ class ConfigHandler:
         self.rules_list: list[str] = []
         
         # Add more fields as needed
-        
-        
-        
+
 
     def load_config(self, filepath):
         with open(filepath, 'r') as file:
@@ -72,6 +70,9 @@ class ConfigHandler:
             self.faq_list = config_data['faq_list']
             self.rules = config_data['rules']
             self.rules_list = config_data['rules_list']
+            
+            self.defaultwherechannel = config_data['defaultwherechannel']
+            self.wherelocations = config_data['wherelocations']
             
             
             

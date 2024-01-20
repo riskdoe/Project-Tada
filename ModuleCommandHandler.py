@@ -16,15 +16,23 @@ htmx_init(templates = Jinja2Templates(directory="templates"))
 
 
 basiccommandlist = []
+wherechannel = "0"
+wherelocation = ""
+wherelist = []
+
 
 def construct_command_page():
     if len(basiccommandlist) == 0:
         return {
-            "commands": "None",
+            "commands": "None"
         }
     else:
         return {
             "commands": basiccommandlist,
+            "channel": wherechannel,
+            "locations": wherelist,
+            "selectedloca": wherelocation
+
         }
 
 @router.get("/commands", response_class=HTMLResponse)
@@ -50,6 +58,10 @@ class CommandHandler(Module):
         for rule in self.rules:
             await self.event_Handler.send_message(f"{rulecount}: {rule}")
             rulecount = rulecount + 1
+
+    async def where_command(self,cmd: ChatCommand):
+        builtmessage = f"Channel {wherechannel}, {wherelocation}"
+        await cmd.reply(builtmessage)
 
     async def commands_list(self,cmd: ChatCommand):
         commandlist :str = ""
@@ -93,6 +105,7 @@ class CommandHandler(Module):
 
     def get_updated_basic_commands(self):
         basiccommandlist.clear()
+        self.basic_commands.clear()
         for basic_command in self.event_Handler.DBConn.GetBasicCommands():
             logging.info(f"CommandHandler: Added basic command: {basic_command}")
             self.basic_commands[basic_command[0]] = basic_command[1]
@@ -107,7 +120,7 @@ class CommandHandler(Module):
     def add_command(self,command, response):
         if command in self.basic_commands:
             return False
-        self.event_Handler.TwitchAPI.CHAT.register_command(command, self.basic_handler)
+        self.event_Handler.Add_command(command, self.basic_handler)
         self.event_Handler.DBConn.AddBasicCommand(command, response)
         self.get_updated_basic_commands()
         logging.info(f"CommandHandler.add_command: Params: '{command}' || '{response}'")
@@ -132,7 +145,16 @@ class CommandHandler(Module):
 
 
     def remove_command(self,command):
+        logging.info("here")
+        for commandz in self.basic_commands:
+            logging.info(commandz)
+            if commandz == command:
+                logging.info("CommandHandler.remove_command: compair success")
+                break
+        if command in self.basic_commands:
+            logging.info("CommandHandler.remove_command: command found")
         if command not in self.basic_commands:
+            logging.info("CommandHandler.remove_command: command not found")
             return False
         self.event_Handler.TwitchAPI.CHAT.unregister_command(command)
         self.event_Handler.DBConn.RemoveBasicCommand(command)
@@ -220,10 +242,16 @@ class CommandHandler(Module):
         self.commands["stats"] = self.get_stats       
         self.commands["faq"] = self.Faq_command
         self.commands["rules"] = self.Rules_command
+        self.commands["where"] = self.where_command
         
+        global wherechannel, wherelist, wherelocation
+        wherechannel = f"{eventHandler.config.defaultwherechannel}"
+        wherelist = eventHandler.config.wherelocations
+        wherelocation = "Ably Dungeon"
         
         
         self.basic_commands = {}
+        
         for command in self.commands:
             logging.info(f"CommandHandler: Added command: {command}")
             if (   command == "add_command" 
@@ -243,15 +271,26 @@ class CommandHandler(Module):
 
 
         logging.info("CommandHandler module loaded")
+    
+    
+    def cleanstring(self, string):
+        string = string.replace(" ", "")
+        return string
         
     async def on_webfrontend_message(self, command):
+        global wherechannel, wherelocation
         if type(command) == dict:
             if list(command.keys())[0] == "Edit_command":
                 self.edit_command(command["Edit_command"], command["Commandoutput"])
             if list(command.keys())[0] == "Add_command":
                 self.add_command(command["Add_command"], command["Commandoutput"])
             if list(command.keys())[0] == "Delete_command":
+                command["Delete_command"] = self.cleanstring(command["Delete_command"])
                 self.remove_command(command["Delete_command"])
+            if list(command.keys())[0] == "Update_where":
+                wherechannel = command["Update_where"]
+                wherelocation = command["Location"]
+                        
             
 
 
