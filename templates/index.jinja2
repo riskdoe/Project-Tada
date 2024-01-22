@@ -65,28 +65,13 @@
                 <div id="bottommiddle" class="flex flex-row h-2/6" >
                     <div id="bottommiddleleft" class="flex flex-col h-full w-1/2 p-2 mr-1 bg-gray-800 rounded-lg" >
                         <h2>Minigames</h2>
-                        <div id="buttonwrapper" class="flex">
-                            <button class="w-1/2 shadow-md mr-3 shadow-indigo-500/50 bg-slate-900 ring-2 ring-violet-800/50 text-slate-300 p-2 rounded"
-                                hx-get="/api/v1/start_trivia"
-                                hx-swap="none"
-                                hx-on::after-request="this.reset()"
-                            >
-                                Start Trivia
-                            </button>
-
-                            <button class="w-1/2 shadow-md shadow-indigo-500/50 bg-slate-900 ring-2 ring-violet-800/50 text-slate-300 p-2 rounded"
-                                hx-get="/api/v1/start_wordle"
-                                hx-swap="none"
-                                hx-on::after-request="this.reset()"
-                            >
-                            Start Wordle
-                            </button>
-                        </div>
 
 
                         <div id="minigame"
                             hx-get="/api/v1/minigamebox"
                             hx-trigger="load"
+                            hx-swap="outerHTML"
+                            class="flex flex-col h-full w-full"
                         >
                         </div>
                     </div>

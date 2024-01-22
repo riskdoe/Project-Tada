@@ -2,42 +2,126 @@
 <div id="minigamebox"
     hx-get="/api/v1/minigamebox"
     hx-trigger="load delay:1s"
-    hx-swap="outerHTML">
+    hx-swap="outerHTML"
+    class="w-full overflow-y-auto h-full scroll-smooth"
+    >
     {% if game == 'trivia' %}
         {% if roundover == 'true' %}
-            <h3>Last game: Trivia</h3>
+            <div id="buttonwrapper" class="flex mt-1">
+                <button class="w-1/2 shadow-md mx-3 shadow-indigo-500/50 bg-slate-900 ring-2 ring-violet-800/50 text-slate-300 p-2 rounded"
+                    hx-get="/api/v1/start_trivia"
+                    hx-swap="none"
+                    hx-on::after-request="this.reset()"
+                >
+                    Start Trivia
+                </button>
+
+                <button class="w-1/2 shadow-md mr-3 shadow-indigo-500/50 bg-slate-900 ring-2 ring-violet-800/50 text-slate-300 p-2 rounded"
+                    hx-get="/api/v1/start_wordle"
+                    hx-swap="none"
+                    hx-on::after-request="this.reset()"
+                >
+                Start Wordle
+                </button>
+            </div>
         {% endif %}
-        {% if roundover == 'false' %}
-            <h3>Running game: Trivia</h3>
-        {% endif %} 
-        <h4>Question: {{ question }}</h4>
-        <ul>
-            {% for answer in answers %}
-            <li>{{ answer }}</li>
-            {% endfor %}
-        </ul>
-        <p>Correct answer: {{ correctanswer }}</p>
-        <p>Number of guesses: {{ number_of_attempts }}</p>
-        <p>Round Winner: {{ winner }}</p>
+        <table class="table-auto border-collapse border-spacing-1 w-full border border-slate-400 dark:border-slate-500 bg-white dark:bg-slate-800 text-sm shadow-sm mt-2">
+            <tr>
+                <th colspan="2" class ="border border-slate-400 dark:border-slate-600 p-2 text-slate-900 dark:text-slate-200 text-center">Q: {{ question }}</th>
+            </tr>
+            <tr>
+                <td class="text-center text-base border border-slate-300 dark:border-slate-700 p-1 text-slate-500 dark:text-slate-400">A: {{ answers.0 }}</td>
+                <td class="text-center text-base border border-slate-300 dark:border-slate-700 p-1 text-slate-500 dark:text-slate-400">B: {{ answers.1 }}</td>
+            </tr>
+            <tr>
+                <td class="text-center text-base border border-slate-300 dark:border-slate-700 p-1 text-slate-500 dark:text-slate-400">C: {{ answers.2 }}</td>
+                <td class="text-center text-base border border-slate-300 dark:border-slate-700 p-1 text-slate-500 dark:text-slate-400">D: {{ answers.3 }}</td>
+            </tr>
+            <tr>
+                <td colspan="2" class="text-center border border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400">Correct answer: {{ correctanswer }}</td>
+            </tr>
+            <tr>
+                <td colspan="2" class="text-center border border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400">Number of guesses: {{ number_of_attempts }}</td>
+            </tr>
+            <tr>
+                <td colspan="2" class="text-center border border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400">Round Winner: {{ winner }}</td>
+            </tr>
+        </table>
     {% endif %}
 
     {% if game == 'wordle' %}
         {% if roundover == 'true' %}
-            <h3>Last game: wordle</h3>
+            <div id="buttonwrapper" class="flex">
+                <button class="w-1/2 shadow-md mr-3 shadow-indigo-500/50 bg-slate-900 ring-2 ring-violet-800/50 text-slate-300 p-2 rounded"
+                    hx-get="/api/v1/start_trivia"
+                    hx-swap="none"
+                    hx-on::after-request="this.reset()"
+                >
+                    Start Trivia
+                </button>
+
+                <button class="w-1/2 shadow-md shadow-indigo-500/50 bg-slate-900 ring-2 ring-violet-800/50 text-slate-300 p-2 rounded"
+                    hx-get="/api/v1/start_wordle"
+                    hx-swap="none"
+                    hx-on::after-request="this.reset()"
+                >
+                Start Wordle
+                </button>
+            </div>
         {% endif %}
-        {% if roundover == 'false' %}
-            <h3>Running game: wordle</h3>
-        {% endif %} 
-        <h4>Word: {{ roundword }}</h4>
-        <p>Number of guesses: {{ number_of_attempts }}</p>
-        <p>Guessed Words: {{ guessedletters }}</p>
-        <p>Wrong letters: {{ wrongletters }}</p>
-        <p>Misplassed letters: {{ misplacedletters }}</p>
-        <p>Correct letters: {{ correctletters }}</p>
-        <p>Round Winner: {{ winner }}</p>
+        <table class = "table-auto border-collapse border-spacing-1 w-full border border-slate-400 dark:border-slate-500 bg-white dark:bg-slate-800 text-sm shadow-sm">
+            <tr>
+                <th colspan="2" class ="border border-slate-400 dark:border-slate-600 p-2 text-slate-900 dark:text-slate-200 text-center">Word: {{ roundword }}</th>
+            </tr>
+            <tr>
+                <td class="text-left border border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400">Number of attempts: {{ number_of_attempts }}</td>
+            <tr>
+                <td colspan="2" class="text-left border border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400">Wrong letters: {{ wrongletters }}</td>
+            </tr>
+            <tr>
+                <td colspan="2" class="text-left border border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400">Misplassed letters: {{ misplacedletters }}</td>
+            </tr>
+            <tr>
+                <td colspan="2" class="text-left border border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400">Correct letters: {{ correctletters }}</td>
+            </tr>
+            <tr>
+                <td colspan="2" class="text-left border border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400">Round Winner: {{ winner }}</td>
+            </tr>
+            <tr>
+                <td colspan="2" class="text-center border border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400">
+
+                    <div class="overflow-y-auto" style="height:80px;"> 
+                    Guessed Words:<br>
+                    {% for word in guessedletters %}
+                        {{ word }} <br>
+                    {% endfor %}
+                    </div>
+                </td>
+                
+            </tr>
+
+        </table>
     {% endif %}
     
-    {% if game == 'none' %}
+    {% if game == 'none'%}
     <h4>No game running</h4>
+        <div id="buttonwrapper" class="flex mt-1">
+            <button class="w-1/2 shadow-md mx-3 shadow-indigo-500/50 bg-slate-900 ring-2 ring-violet-800/50 text-slate-300 p-2 rounded"
+                hx-get="/api/v1/start_trivia"
+                hx-swap="none"
+                hx-on::after-request="this.reset()"
+            >
+                Start Trivia
+            </button>
+
+            <button class="w-1/2 mr-3 shadow-md shadow-indigo-500/50 bg-slate-900 ring-2 ring-violet-800/50 text-slate-300 p-2 rounded"
+                hx-get="/api/v1/start_wordle"
+                hx-swap="none"
+                hx-on::after-request="this.reset()"
+            >
+            Start Wordle
+            </button>
+        </div>
     {% endif %}
+
 </div>
