@@ -206,6 +206,5 @@ class giveAwayMachine(Module):
             if list(command.keys())[0] == "winner_remove":
                 personid = command["winner_remove"]
                 logging.info(f"{self.name}: winner remove command received")
-                for person in winner:
-                    winner = [item for item in winner if item.id != personid]
+                winner = [item for item in winner if item.id != personid]
 
