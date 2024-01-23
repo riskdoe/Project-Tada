@@ -16,6 +16,8 @@ from twitchAPI.eventsub.websocket import EventSubWebsocket
 from twitchAPI.object.eventsub import *
 from twitchAPI.object.api import GetChattersResponse
 from twitchAPI.object.api import Chatter as twitchChatter
+from twitchAPI.object.api import ChannelFollowersResult
+from twitchAPI.object.api import TwitchUser
 
 #fast Api
 from typing import Annotated
@@ -36,6 +38,7 @@ from ModuleCommandHandler import CommandHandler
 from ModuleMiniGameSystem import MinigameSystem
 from ModuleShoutouts import Shoutout
 from ModulesStreamTracker import StreamTracker
+from ModuleGiveAwayMachine import giveAwayMachine
 
 import webbrowser
 
@@ -163,6 +166,49 @@ def update_where(Channel: Annotated[str,Form()], Location: Annotated[str,Form()]
     return "command sent"
 
 
+@router.post("/startgiveaway/")
+def startgiveaway(commandname: Annotated[str,Form()]):
+    global COMMAND_QUEUE
+    command = {"start_giveaway": commandname}
+    COMMAND_QUEUE.put(command)
+    return "command sent"
+
+@router.get("/pullwinner")
+def pullwinner():
+    global COMMAND_QUEUE
+    command = {"pick_winner": "pick_winner"}
+    COMMAND_QUEUE.put(command)
+    return "command sent"
+
+@router.get("/togglepause")
+def pullwinner():
+    global COMMAND_QUEUE
+    command = {"toggle_pause": "toggle_pause"}
+    COMMAND_QUEUE.put(command)
+    return "command sent"
+
+@router.get("/endgiveway")
+def pullwinner():
+    global COMMAND_QUEUE
+    command = {"end_giveaway": "end_giveaway"}
+    COMMAND_QUEUE.put(command)
+    return "command sent"
+
+
+@router.post("/giveaway/winnerannounce")
+def winnerannounce(winner: Annotated[str,Form()]):
+    global COMMAND_QUEUE
+    command = {"winner_announce": winner}
+    COMMAND_QUEUE.put(command)
+    return "command sent"
+
+
+@router.post("/giveaway/winnerremove")
+def winnerannounce(winner: Annotated[str,Form()]):
+    global COMMAND_QUEUE
+    command = {"winner_remove": winner}
+    COMMAND_QUEUE.put(command)
+    return "command sent"
 
 
 #will be called when the bot is ready so we can connect to target
@@ -296,6 +342,13 @@ async def get_chat_users():
 async def get_channel_info():
     return await TWITCH.get_channel_information(HOST_CHANNEL_ID)
 
+async def get_if_follower(user: str):
+    target = await first(TWITCH.get_users(logins=[user]))
+    return await TWITCH.get_channel_followers(HOST_CHANNEL_ID, user_id= target.id)
+
+async def get_user_pfp(user: str):
+    target = await first(TWITCH.get_users(logins=[user]))
+    return target.profile_image_url
 
 #chat
 async def send_message(message: str):
@@ -391,13 +444,16 @@ async def twitch_setup():
     
     streamtracker = StreamTracker(EVENT_HANDLER)
     EVENT_HANDLER.AddModule(streamtracker)
+    
+    giveawaymachine = giveAwayMachine(EVENT_HANDLER)
+    EVENT_HANDLER.AddModule(giveawaymachine)
 
     #add all the commands
     commands = EVENT_HANDLER.Get_commands()
     
     for command in commands:
         add_command(command, commands[command])
-    
+        
     #add events. these will be send over to event handler
     await eventsub.listen_channel_update_v2(user.id, on_channel_update)
     await eventsub.listen_channel_follow_v2(user.id, user.id, on_follow)

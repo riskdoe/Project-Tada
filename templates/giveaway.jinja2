@@ -1,0 +1,60 @@
+<div id="giveawaybox"
+    hx-get="/api/v1/giveaway"
+    hx-trigger="load delay:1s"
+    hx-swap="outerHTML"
+>   
+
+    {% if giveawayrunning == 'False' %}
+        <h2> No give away running </h2>
+    {% endif %}
+
+    {% if giveawayrunning == 'True' %}
+        <h3 class="text-gray-50"> Command: !{{currentgiveawaycommand}} </h3>
+        {% if numberofentries == "NONE" %}
+            <h3> No entries yet </h3>
+        {% endif %}
+        {% if error != "" %}
+            <h3> {{error}} </h3>
+        {% endif %}
+        {% if togglepause == "True" %}
+            <h3> Give Away Currently Paused. </h3>
+        {% endif %}        
+        {% if numberofentries != "NONE" %}
+            
+            <table class="table-auto border-collapse border-spacing-1 w-full border border-slate-400 dark:border-slate-500 bg-white dark:bg-slate-800 text-sm shadow-sm mt-2 mb-2">
+                <tr>
+                    <td class="text-center text-base border border-slate-300 dark:border-slate-700 p-1 text-slate-500 dark:text-slate-400"> Entries: {{numberofentries}} </td>
+                    <td class="text-center text-base border border-slate-300 dark:border-slate-700 p-1 text-slate-500 dark:text-slate-400"> Entries unqiue: {{unqiueentrycount}} </td>
+                </tr>
+            </table>
+        {% endif %}
+        {% if haswinner == "True" %}
+            {% for person in winner %}
+                <div id="winner" class="flex flex-row p-1 bg-gray-700 rounded-lg text-gray-50 mb-2 overflow-y-auto">
+                    <img src="{{person.pfp}}" alt="{{person.name}} profile pic" style="max-width:70px;width:100%" class= "border-r-2 border-solid mr-1">
+                    <div id="winnerdetails" class="grow">
+                        <h3 class= "text-gray-50"> Winner: {{person.name}}</h3>
+                        <p class= "text-gray-50"> Subed: {{person.isusersub}} </p>
+                        <p class= "text-gray-50"> Follower: {{person.isfollower}} </p>
+                    </div>
+                    <div id="buttonholder" class="flex flex-col">
+                    <form id="winnerform" class="flex flex-row h-1/2 mb-2" hx-post="/api/v1/giveaway/winnerannounce">
+                        <input type="hidden" name="winner" value="{{person.id}}">
+                        <button class="text-gray-50 rounded shadow-md shadow-indigo-500/50 bg-slate-900 ring-2 ring-violet-800/50 pl-1 pr-1 w-full">
+                        announce
+                        </button>
+                    </form>
+                    <form id="renmoveform" class="flex flex-row h-1/2" hx-post="/api/v1/giveaway/winnerremove">
+                        <input type="hidden" name="winner" value="{{person.id}}">
+                        <button class="text-gray-50 rounded shadow-md shadow-indigo-500/50 bg-slate-900 ring-2 ring-violet-800/50 pl-1 pr-1 w-full">
+                        remove
+                        </button>
+                    </form>
+                    </div>
+
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endif %}
+
+</div>

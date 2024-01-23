@@ -75,15 +75,17 @@
                         >
                         </div>
                     </div>
-                    <div id="bottommiddleright" class="flex flex-col h-full w-1/2 p-2 ml-2 bg-gray-800 rounded-lg" >
-                        <h2>Give Away Machine</h2>
-                        <div id="bottommiddlerightbox" 
+                    
+                    <div id="actionlog" class="flex flex-col h-full w-1/2 p-2 ml-2 bg-gray-800 rounded-lg">
+                        <h2>Action Log</h2>
+                        <div id="actionlogbox" 
                             class="grow w-full overflow-y-auto h-1" 
-                            hx-get="/api/v1/bottommiddleright"
+                            hx-get="/api/v1/actionlog"
                             hx-trigger="load"
                         >
                         </div>
                     </div>
+
                 </div>
             </div>
             <div class="h-full p-3 pl-0 w-1/6">
@@ -97,15 +99,44 @@
                     </div>
                 </div>
 
-                <div id="actionlog" class="flex flex-col h-4/6 p-2 mb-3 bg-gray-800 rounded-lg">
-                    <h2>Action Log</h2>
-                    <div id="actionlogbox" 
-                        class="grow w-full overflow-y-auto h-1" 
-                        hx-get="/api/v1/actionlog"
-                        hx-trigger="load"
-                    >
-                    </div>
+                <div id="giveawaymachine"  class="flex flex-col h-4/6 p-2 mb-3 bg-gray-800 rounded-lg">
+                        <h2>Give Away Machine</h2>
+                            <form id="start giveaway"
+                            hx-post="/api/v1/startgiveaway"
+                            hx-trigger="submit"
+                            hx-swap="none"
+                            hx-on::after-request="this.reset()"
+                            >
+                            <input class="bg-transparent text-slate-50 mr-2 p-2 ring-2 ring-violet-800/50 w-full rounded" type="text" name="commandname" placeholder="Give away Command..." required>
+                                <div id="top" class="flex space-x-4 p-2">
+                                    <button class="w-1/2 shadow-md shadow-indigo-500/50 bg-slate-900 ring-2 ring-violet-800/50 text-slate-300 p-1 rounded"
+                                        hx-get="/api/v1/pullwinner"
+                                        hx-swap="none"
+                                        hx-on::after-request="this.reset()"
+                                    >Pull</button>
+
+                                    <button class="w-1/2 shadow-md shadow-indigo-500/50 bg-slate-900 ring-2 ring-violet-800/50 text-slate-300 p-1 rounded" type="submit">Start</button>
+                                </div>
+                                <div id="top" class="flex space-x-4 mb-2 p-2">
+                                    <button class="w-1/2 shadow-md shadow-indigo-500/50 bg-slate-900 ring-2 ring-violet-800/50 text-slate-300 p-1 rounded"
+                                        hx-get="/api/v1/togglepause"
+                                        hx-swap="none"
+                                        hx-on::after-request="this.reset()"
+                                    >Pause</button>
+                                    <button class="w-1/2 shadow-md shadow-indigo-500/50 bg-slate-900 ring-2 ring-violet-800/50 text-slate-300 p-1 rounded"
+                                        hx-get="/api/v1/endgiveway"
+                                        hx-swap="none"
+                                        hx-on::after-request="this.reset()"
+                                    >Stop</button>                                </div>
+                            </form>
+                        <div id="bottommiddlerightbox" 
+                            class="grow w-full overflow-y-auto h-1" 
+                            hx-get="/api/v1/giveaway"
+                            hx-trigger="load"
+                        >
+                        </div>
                 </div>
+
             </div>
         </div>
     </div>

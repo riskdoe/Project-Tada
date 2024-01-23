@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from Module import Module
 from ConfigHandler import ConfigHandler
 from twitchAPI.object.eventsub import ChannelFollowEvent, ChannelBanEvent
@@ -67,6 +68,11 @@ class EventHandler:
         
     def Add_command(self, command, function):
         self.commands[command] = function
+        
+        
+    async def get_pfp(self, user):
+        result = await self.TwitchAPI.get_user_pfp(user)
+        return result
         
     #------- API events -------
     
