@@ -39,6 +39,7 @@ from ModuleMiniGameSystem import MinigameSystem
 from ModuleShoutouts import Shoutout
 from ModulesStreamTracker import StreamTracker
 from ModuleGiveAwayMachine import giveAwayMachine
+from Moduleraidtoshoutout import raidtoshoutout as raid2shout
 
 import webbrowser
 
@@ -207,6 +208,20 @@ def winnerannounce(winner: Annotated[str,Form()]):
 def winnerannounce(winner: Annotated[str,Form()]):
     global COMMAND_QUEUE
     command = {"winner_remove": winner}
+    COMMAND_QUEUE.put(command)
+    return "command sent"
+
+@router.post("/raidtoshoutout/soft")
+def softshoutout(Raider: Annotated[str,Form()]):
+    global COMMAND_QUEUE
+    command = {"soft_shoutout": Raider}
+    COMMAND_QUEUE.put(command)
+    return "command sent"
+
+@router.post("/raidtoshoutout/loud")
+def softshoutout(Raider: Annotated[str,Form()]):
+    global COMMAND_QUEUE
+    command = {"loud_shoutout": Raider}
     COMMAND_QUEUE.put(command)
     return "command sent"
 
@@ -447,6 +462,11 @@ async def twitch_setup():
     
     giveawaymachine = giveAwayMachine(EVENT_HANDLER)
     EVENT_HANDLER.AddModule(giveawaymachine)
+    
+    raidtoshoutout = raid2shout(EVENT_HANDLER)
+    EVENT_HANDLER.AddModule(raidtoshoutout)
+    
+    logging.info(await get_user_pfp("poigpt"))
 
     #add all the commands
     commands = EVENT_HANDLER.Get_commands()

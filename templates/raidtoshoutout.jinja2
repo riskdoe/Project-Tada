@@ -1,0 +1,34 @@
+<div id="raidlistbox"
+    hx-get="/api/v1/raidtoshoutout"
+    hx-trigger="load delay:1s"
+    hx-swap="outerHTML"
+    class="overflow-y-auto"
+>   
+    {% if raiderscount == "0" %}
+    <h2 class="text-gray-50">No Raiders :c</h2>
+    {% endif %}
+    {% for raid in raiders %}
+        <div id="Raider" class="flex flex-row p-1 bg-gray-700 rounded-lg text-gray-50 mb-2 overflow-y-auto">
+            <img src="{{raid.pfp}}" alt="{{raid.name}} profile pic" style="max-width:70px;width:100%" class= "border-r-2 border-solid mr-1">
+            <div id="raider details" class="grow">
+                <h3 class= "text-gray-50">Raider: {{ raid.name }}</h3>
+                <p class= "text-gray-50">Raid Size: {{ raid.raidsize }} </p>
+            </div>
+            <div id="buttonholder" class="flex flex-col">
+                <form id="shoutoutsoft" class="flex flex-row h-1/2 mb-2" hx-post="/api/v1/raidtoshoutout/soft">
+                    <input type="hidden" name="Raider" value="{{raid.id}}">
+                    <button type="submit" class="text-gray-50 rounded shadow-md shadow-indigo-500/50 bg-slate-900 ring-2 ring-violet-800/50 pl-1 pr-1 w-full">
+                    Soft
+                    </button>
+                </form>
+                <form id="shoutoutloud" class="flex flex-row h-1/2" hx-post="/api/v1/raidtoshoutout/loud">
+                    <input type="hidden" name="Raider" value="{{raid.name}}">
+                    <button type="submit" class="text-gray-50 rounded shadow-md shadow-indigo-500/50 bg-slate-900 ring-2 ring-violet-800/50 pl-1 pr-1 w-full">
+                    Loud
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    {% endfor %}
+</div>
