@@ -183,6 +183,8 @@ class minigame_trivia():
         numberofguesses = 0
         self.Event_Handler.loginfo("minigame_trivia", f"trivia started. question is: {self.RoundQuestion}")
         self.Event_Handler.loginfo("minigame_trivia", f"trivia started. answer is: {self.RoundQuestion.answers[int(self.RoundQuestion.correctAnswerIndex)]}")
+        self.Event_Handler.eventtofrontend("minigame_trivia", f"trivia started. question is: {self.RoundQuestion}")
+        self.Event_Handler.eventtofrontend("minigame_trivia", f"trivia started. answer is: {self.RoundQuestion.answers[int(self.RoundQuestion.correctAnswerIndex)]}")
 
     #return question
     def get_question(self):
@@ -230,7 +232,8 @@ class minigame_wordle():
         words = data["data"]
         self.word = words[random.randint(0,len(words)-1)]
         self.word = self.word.lower() 
-        self.event_Handler.loginfo("minigame_wordle", f"wordle started. word is: {self.word}")   
+        self.event_Handler.loginfo("minigame_wordle", f"wordle started. word is: {self.word}")
+        self.event_Handler.eventtofrontend("minigame_wordle", f"wordle started. word is: {self.word}")
         
         self.correct_letters = None
         self.misplaced_letters = None
