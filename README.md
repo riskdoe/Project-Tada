@@ -6,9 +6,10 @@ Refreshes elements on the page just by doing a html get request.
 
 todo: find a way to get the server to tell the webapp to update rather then requesting a update every second for each element
 
-## current UI work in progress
-(where command is mostly built for people that play mabinogi but can be edited or removed)
-![brave_cnf9WuBoNg](https://github.com/riskdoe/Project-Tada/assets/91177665/755f027d-4407-4a4d-ba62-b5c8f4b77184)
+## current UI
+(where command is mostly built for ![brave_KaXdiH8wH7](https://github.com/riskdoe/Project-Tada/assets/91177665/deab3c35-7c1a-4b0a-9a37-638a6aff2c87)
+people that play mabinogi but can be edited or removed)
+
 
 
 
