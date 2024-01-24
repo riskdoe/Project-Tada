@@ -74,11 +74,26 @@ class minigameplayer():
         #hangman
         self.hangman_Wins = hangman_Wins
 
+class dummy_eventhandler():
+    def __init__(self):
+        pass
+    def loginfo(self, caller, message):
+        logging.info(f"{caller}: {message}")
+    def logdebug(self, caller, message):
+        logging.debug(f"{caller}: {message}")
+    def logwarning(self, caller, message):
+        logging.warning(f"{caller}: {message}")
+    def logerror(self, caller, message):
+        logging.error(f"{caller}: {message}")
+    
+
 class Databaseconn():
     def __init__(self, eventHandler, dbname: str):
         self.eventHandler = eventHandler
         self.db = sqlite3.connect(f"{dbname}.db", check_same_thread=False)
-        logging.info(f"Connected to database {dbname}.db")
+        if self.eventHandler == None:
+            self.eventHandler = dummy_eventhandler()
+        self.eventHandler.loginfo("Databaseconn",f"Connected to database {dbname}.db")
         self.cursor = self.db.cursor()
         self.cursor.execute('CREATE TABLE IF NOT EXISTS "Messages" ("ID" INTEGER NOT NULL, "TwitchID" TEXT NOT NULL, "UserName" TEXT NOT NULL,"Message" TEXT NOT NULL,"UnixTimeStamp" INTEGER NOT NULL, "Stream_ID" INTEGER NOT NULL,PRIMARY KEY("ID" AUTOINCREMENT))')
         self.db.commit()
@@ -127,18 +142,18 @@ class Databaseconn():
         message = data
         self.cursor.execute(f'INSERT INTO "main"."Messages" ("TwitchID", "UserName", "Message", "UnixTimeStamp", "Stream_ID") VALUES ("{message.id}", "{message.user}", "{message.text}", "{message.timestamp}", "{self.eventHandler.streamID}")')
         self.db.commit()
-        logging.debug(f'attempted to insert message into database: {message}')
+        self.eventHandler.logdebug("Databaseconn",f' attempted to insert message into database: {message}')
 
     def AddBan(self, data: ChannelBanEvent):
         ban = Bandata(data.event.user_id, data.event.user_name, data.event.moderator_user_id, data.event.moderator_user_name, data.event.reason, data.event.banned_at, data.event.ends_at, data.event.is_permanent)
         self.cursor.execute(f'INSERT INTO "BanLog" ("BannedUserID", "BannedUserName", "ModeratorID", "ModeratorUser", "BanReason", "BanTime", "IsPermanent") VALUES ("{ban.userID}", "{ban.userName}", "{ban.moderatorID}", "{ban.moderatorName}", "{ban.reason}", "{ban.bantime}", "{ban.permanent}")')
-        logging.debug(f"attempted to insert ban into database: {ban}")
+        self.eventHandler.logdebug("Databaseconn",f" attempted to insert ban into database: {ban}")
         self.db.commit()
 
     def AddUnBan(self, data: ChannelUnbanEvent):
         unban = Unbandata(data.event.user_id,data.event.user_name,data.event.moderator_user_id,data.event.moderator_user_name)
         self.cursor.execute(f'INSERT INTO "UnBanLog" ("BannedUserID", "BannedUserName", "ModeratorID", "ModeratorUser") VALUES ("{unban.userID}", "{unban.userName}", "{unban.moderatorID}", "{unban.moderatorName}")')
-        logging.debug(f"attempted to insert unban into database: {unban}")
+        self.eventHandler.logdebug("Databaseconn",f" attempted to insert unban into database: {unban}")
         self.db.commit()
 
     def GetBasicCommands(self):
@@ -149,7 +164,6 @@ class Databaseconn():
         for item in commands:
             newitem = list(item)
             newitem[0] = newitem[0].replace(" ", "")
-            logging.info(f"Databaseconn.GetBasicCommands: item: {type(newitem)}")
             commandlist.append(newitem)
         return commandlist
 
@@ -163,7 +177,7 @@ class Databaseconn():
         self.db.commit()
 
     def EditBasicCommand(self, Alias:str, Output:str):
-        logging.info(f"Databaseconn.EditBasicCommand: Alias: {Alias} || Output: {Output}")
+        self.eventHandler.loginfo("Databaseconn",f".EditBasicCommand: Alias: {Alias} || Output: {Output}")
         self.cursor.execute(f'UPDATE "BasicCommands" SET "Return"="{Output}" WHERE Alias="{Alias}"')
         self.db.commit()
 
@@ -172,19 +186,18 @@ class Databaseconn():
 
     def GetMiniGamePlayers(self):
         players: list[minigameplayer] = []
-        logging.info(f"Databaseconn.GetMiniGamePlayers: returning players")
+        self.eventHandler.loginfo("Databaseconn",f".GetMiniGamePlayers: returning players")
         self.cursor.execute('SELECT "TwitchID", "Name", "Points", "TotalWins", "TriviaWins", "HangmanWins" FROM "MiniGamePlayers"')
         out = self.cursor.fetchall()
-        #logging.info(f"Databaseconn.GetMiniGamePlayers: out: {out}")
         return out
 
     def AddMiniGamePlayer(self, player:minigameplayer):
-        logging.info(f"Databaseconn.AddMiniGamePlayer: player: {player}")
+        self.eventHandler.loginfo("Databaseconn",f".AddMiniGamePlayer: player: {player}")
         self.cursor.execute(f'INSERT INTO "MiniGamePlayers"("TwitchID", "Name", "Points", "TotalWins", "TriviaWins", "HangmanWins") VALUES ("{player.id}","{player.name}", "{player.points}", "{player.total_wins}", "{player.trivia_wins}", "{player.hangman_Wins}")')
         self.db.commit()
 
     def UpdateMiniGamePlayer(self, player:minigameplayer):
-        logging.info(f"Databaseconn.update_user: player: {player}")
+        self.eventHandler.loginfo("Databaseconn",f".update_user: player: {player}")
         self.cursor.execute(f'UPDATE "MiniGamePlayers" SET "Points"="{player.points}", "TotalWins"="{player.total_wins}", "TriviaWins"="{player.trivia_wins}", "HangmanWins"="{player.hangman_Wins}" WHERE "TwitchID"="{player.id}"')
         self.db.commit()
 
@@ -203,7 +216,7 @@ class Databaseconn():
         return out
 
     def updatetotalwatchtime(self, user:str, watchtime:int):
-        logging.info(f"Databaseconn.updatetotalwatchtime: user: {user} || watchtime: {watchtime}")
+        self.eventHandler.loginfo("Databaseconn",f".updatetotalwatchtime: user: {user} || watchtime: {watchtime}")
         self.cursor.execute(f"UPDATE 'stat_total_watchtime' SET 'WatchTime'='{watchtime}' WHERE User='{user}'")
         self.db.commit()
         
@@ -212,11 +225,11 @@ class Databaseconn():
         self.db.commit()
 
     def add_stream(self, instance: stream_instance):
-        logging.info("Databaseconn.dumpstreamdetails: dumping stream details")
+        self.eventHandler.loginfo("Databaseconn",".dumpstreamdetails: dumping stream details")
         self.cursor.execute(f'INSERT INTO "Stream_Stat"("StreamStart", "StreamEnd", "Duration", "NumberofChatters", "NumberofMessages") VALUES ("{instance.stream_start_time}", "{instance.stream_end_time}", "{instance.stream_duration}", "{len(instance.active_chatter)}", "{instance.num_of_messages_during_stream}")')
         self.db.commit()
         streamid = instance.stream_id
-        logging.info(f"Databaseconn.dumpstreamdetails: streamid: {streamid}")
+        self.eventHandler.loginfo("Databaseconn",f".dumpstreamdetails: streamid: {streamid}")
         for title in instance.stream_title:
             self.cursor.execute(f'INSERT INTO "stat_title"("stream_ID", "title", "event_time") VALUES ("{streamid}", "{title.title}", "{title.event_time}")')
             self.db.commit()

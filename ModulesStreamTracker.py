@@ -1,7 +1,6 @@
 import asyncio
 from Module import Module
 from EventHandler import EventHandler
-import logging
 from twitchAPI.object.eventsub import *
 from twitchAPI.chat import ChatMessage
 from twitchAPI.object.api import ChannelInformation,GetChattersResponse
@@ -93,7 +92,6 @@ class stream_instance():
         #we need a worker for this next part
         #updates every x ammount of time
         self.update_time = caller.event_Handler.config.worker_update_rate
-        logging.info(f"stream_instance.__init__: update time is {self.update_time}")
         self.veiwer_watchtime = {}
         self.active = True
         global streamcordingactive
@@ -104,7 +102,6 @@ class stream_instance():
 
         for user in self.owner.event_Handler.DBConn.get_all_user_watchtime():
             self.veiwer_total_watchtime[user[0]] = user[1]
-        logging.info(self.veiwer_total_watchtime)
         
         
         global streamstarttime
@@ -115,57 +112,28 @@ class stream_instance():
         
     
     async def check_for_chatters(self):
-        logging.debug("stream_instance.check_for_chatters: checking for chatters")
         chattersresponse : GetChattersResponse = await self.owner.event_Handler.TwitchAPI.get_chat_users()
         chatters = chattersresponse.data
-        logging.info(f"stream_instance.check_for_chatters: checking for chatters, time:{datetime.utcfromtimestamp(get_time()).strftime('%H:%M')}")
         for chatter in chatters:
             
             name = chatter.user_name.lower()
             
-            logging.info(f"stream_instance.check_for_chatters: {name} was found")
             
             if name not in self.veiwer_total_watchtime:
-                logging.info(f"stream_instance.check_for_chatters: new chatter {name} was found, added")
                 self.veiwer_total_watchtime[name] = self.update_time
                 self.owner.event_Handler.DBConn.addveiwer(name, self.veiwer_total_watchtime[name])
             else:
 
                 self.veiwer_total_watchtime[name] += self.update_time
-                logging.info(f"stream_instance.check_for_chatters: {name} was found, updated new points {self.veiwer_total_watchtime[name]}")
                 self.owner.event_Handler.DBConn.updatetotalwatchtime(name, self.veiwer_total_watchtime[name])
 
             if name not in self.veiwer_watchtime:
                 self.veiwer_watchtime[name] = 0
-                logging.debug(f"stream_instance.check_for_chatters: new chatter {name} was found, added")                
             else:
                 self.veiwer_watchtime[name] += self.update_time
-                logging.debug(f"stream_instance.check_for_chatters: {name} was found, updated")
-        
-    # async def start_worker(self):
-    #     while self.active:
-    #         logging.info("loop2")
-    #         await asyncio.gather(
-    #         asyncio.sleep(self.update_time),
-    #         self.check_for_chatters(),
-    #         )    
         
 
-    def updatewasrun(self):
-        logging.info("stream_instance.updatewasrun: update was run")
-        logging.info(f"stream_instance.updatewasrun: {self.stream_start_time} was start time")
-        logging.info(f"stream_instance.updatewasrun: {self.num_of_messages_during_stream} messages were sent")
-        logging.debug(f"stream_instance.updatewasrun: {len(self.active_chatter)} chatters were active")
-        logging.debug(f"stream_instance.updatewasrun: {len(self.follows_during_stream)} follows were made")
-        logging.debug(f"stream_instance.updatewasrun: {len(self.subs_during_stream)} subs were made")
-        logging.debug(f"stream_instance.updatewasrun: {len(self.giftsubs_during_stream)} gift subs were made")
-        logging.debug(f"stream_instance.updatewasrun: {len(self.raids_during_stream)} raids were made")
-        logging.debug(f"stream_instance.updatewasrun: {len(self.cheers_during_stream)} cheers were made")
-        logging.debug(f"stream_instance.updatewasrun: {len(self.shoutouts_during_stream)} shoutouts were made")
-        if(self.stream_end_time != None):
-            logging.debug(f"stream_instance.updatewasrun: {self.stream_end_time} was end time")
-            logging.debug(f"stream_instance.updatewasrun: {self.stream_duration} was duration")
-            
+    def updatewasrun(self):            
         global  streamfollows, streamsubs, streamgiftsubs, streamraids, streamcheers, streamshoutouts, streammumberofactivechatters, streamnumberofmessages
         streamfollows = len(self.follows_during_stream)
         streamsubs = len(self.subs_during_stream)
@@ -238,32 +206,25 @@ class StreamTracker(Module):
     
     async def on_channel_update(self, data: ChannelUpdateEvent):
         if self.check_if_recording() != True:
-            logging.debug("StreamTracker.on_channel_update: not recording")
             pass
         else:
-            logging.info("StreamTracker.on_channel_update: detected title change")
             self.active_stream.add_title(data.event.title, get_time())
             self.active_stream.add_game(data.event.category_name, get_time())
     
     async def on_channel_follow(self, data: ChannelFollowEvent):
         if self.check_if_recording() != True:
-            logging.debug("StreamTracker.on_channel_follow: not recording")
             pass
         else:
-            logging.info("StreamTracker.on_channel_follow: detected follow")
             self.active_stream.add_follow(data.event.user_name, get_time())
     
     async def on_channel_subscribe(self, data: ChannelSubscribeEvent):
         if self.check_if_recording() != True:
-            logging.debug("StreamTracker.on_channel_subscribe: not recording")
             pass
         else:
-            logging.info("StreamTracker.on_channel_subscribe: detected sub")
             self.active_stream.add_sub(data.event.user_name, get_time(), data.event.tier) 
     
     async def on_channel_subscription_gift(self, data: ChannelSubscriptionGiftEvent):
         if self.check_if_recording() != True:
-            logging.debug("StreamTracker.on_channel_subscription_gift: not recording")
             pass
         else:
             username = ""
@@ -271,21 +232,17 @@ class StreamTracker(Module):
                 username = "Anonymous"
             else:
                 username = data.event.user_name
-            logging.info("StreamTracker.on_channel_subscription_gift: detected sub gift")
             self.active_stream.add_subgift(username, get_time(), data.event.tier, data.event.total, submessage = data.event.message)
                 
     async def on_channel_subscription_message(self, data: ChannelSubscriptionMessageEvent):
         if self.check_if_recording() != True:
-            logging.debug("StreamTracker.on_channel_subscription_message: not recording")
             pass
         else:
-            logging.info("StreamTracker.on_channel_subscription_message: detected sub message")
             self.active_stream.add_sub(data.event.user_name, get_time(), data.event.tier, resub = True , submessage = data.event.message)
         
     
     async def on_channel_cheer(self, data: ChannelCheerEvent):
         if self.check_if_recording() != True:
-            logging.debug("StreamTracker.on_channel_cheer: not recording")
             pass
         else:
             username = ""
@@ -293,15 +250,12 @@ class StreamTracker(Module):
                 username = "Anonymous"
             else:
                 username = data.event.user_name
-            logging.info(f"StreamTracker.on_channel_cheer: detected cheer")
             self.active_stream.add_cheer(username, get_time(), data.event.bits, data.event.message)
     
     async def on_channel_raid(self, data: ChannelRaidEvent):
         if self.check_if_recording() != True:
-            logging.debug("StreamTracker.on_channel_raid: not recording")
             pass
         else:
-            logging.info("StreamTracker.on_channel_raid: detected raid")
             self.active_stream.add_raid(data.event.from_broadcaster_user_name, get_time(), data.event.viewers)
         
     
@@ -310,7 +264,7 @@ class StreamTracker(Module):
         self.active_stream = stream_instance(self,streamid)
         await self.active_stream.check_for_chatters()
         #await self.active_stream.start_worker()
-        logging.info("StreamTracker.on_stream_online: recording")
+        self.event_Handler.loginfo(self.name, ".on_stream_online: recording")
         streaminfo: ChannelInformation = await self.event_Handler.TwitchAPI.get_channel_info()
         self.active_stream.add_title(streaminfo[0].title,get_time())
         self.active_stream.add_game(streaminfo[0].game_name,get_time())
@@ -319,40 +273,31 @@ class StreamTracker(Module):
     
     async def on_stream_offline(self, data: StreamOfflineEvent):
         if self.check_if_recording() != True:
-            logging.debug("StreamTracker.on_stream_offline: not recording")
             pass
         else:
+            self.event_Handler.loginfo(self.name, ".on_stream_offline: stream ended")
             self.active_stream.end_stream()
-            logging.info("StreamTracker.on_stream_offline: stream ended")
             self.reocorced_streams.append(self.active_stream)
             self.active_stream = None
             self.event_Handler.go_offline()
     
     async def on_shoutout_received(self, data: ChannelShoutoutReceiveEvent):
         if self.check_if_recording() != True:
-            logging.debug("StreamTracker.on_shoutout_received: not recording")
             pass
         else:
-            logging.info("StreamTracker.on_shoutout_received: detected shoutout")
             self.active_stream.add_shoutout(data.user.name, get_time())
         
     
     async def on_message(self, data: ChatMessage):
         if self.check_if_recording() != True:
-            logging.debug("StreamTracker.on_message: not recording")
             pass
         else:
-            logging.info("StreamTracker.on_message: detected message")
             self.active_stream.add_message(data.user.name)
         
     async def on_webfrontend_message(self, command:str):
-        logging.info("StreamTracker.on_webfrontend_message: recieved command")
-        logging.info(command)
         if command == "startstream":
-            logging.info("testing start stream")
             await self.fake_start_stream()
         elif command == "endstream":
-            logging.info("testing end stream")
             await self.fake_end_stream()
     
     async def fake_start_stream(self):
@@ -361,7 +306,7 @@ class StreamTracker(Module):
         self.active_stream = stream_instance(self,streamid)
         await self.active_stream.check_for_chatters()
         #await self.active_stream.start_worker()
-        logging.info("StreamTracker.on_stream_online: recording")
+        self.event_Handler.loginfo(self.name, ".on_stream_online: recording")
         streaminfo: ChannelInformation = await self.event_Handler.TwitchAPI.get_channel_info()
         self.active_stream.add_title(streaminfo[0].title,get_time())
         self.active_stream.add_game(streaminfo[0].game_name,get_time())
@@ -370,12 +315,11 @@ class StreamTracker(Module):
     
     async def fake_end_stream(self):
         '''this is for testing purposes only'''
-        logging.info(self.check_if_recording())
         if self.check_if_recording() != True:
-            logging.info("StreamTracker.on_stream_offline: not recording")
+            self.event_Handler.loginfo(self.name, ".on_stream_offline: not recording")
         elif self.check_if_recording() == True:
             self.active_stream.end_stream()
-            logging.info("StreamTracker.test_on_stream_offline: stream ended")
+            self.event_Handler.loginfo(self.name, ".on_stream_offline: stream ended")
             #self.reocorced_streams.append(self.active_stream)
             self.event_Handler.DBConn.add_stream(self.active_stream)
             self.active_stream = None
@@ -383,7 +327,6 @@ class StreamTracker(Module):
             #write stream details to db
 
     async def do_worker(self):
-        logging.info("StreamTracker.do_worker: workered")
         if self.check_if_recording():
             await self.active_stream.check_for_chatters()
 

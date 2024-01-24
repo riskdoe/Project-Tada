@@ -9,7 +9,7 @@ from threading import Thread
 
 import TwitchAPIConn
 
-import logging
+from TadaLogger import tadaLogger
 
 
 
@@ -25,45 +25,36 @@ eventHandler: EventHandler = None
 
 def start_twitch():
         
-    #set up logging
-    logFormatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-    logging.basicConfig(filename='output.log'
-                        ,filemode='w'
-                        ,format='%(asctime)s - %(levelname)s - %(message)s'
-                        ,encoding='utf-8'
-                        ,level= logging.INFO)
-    rootlogger = logging.getLogger()
-    consolehandler = logging.StreamHandler()
-    consolehandler.setFormatter(logFormatter)
-    rootlogger.addHandler(consolehandler)
+    tadalogger = tadaLogger()       
     
     #check if config file exists
     if not os.path.exists("config.json"):
-        logging.warning("Config json file does not exist. please create and edit it.")
+        tadalogger.logwarning("Config json file does not exist. please create and edit it.")
         exit()
     
     # Usage example
     config_handler = ConfigHandler()
     config_handler.load_config('config.json')
     
-    logging.info ("checking for database file...")
+    tadalogger.loginfo("startup", "checking for database file...")
     # Check if database file exists
     if not os.path.exists(f"{config_handler.channel}.db"):
-        logging.warning("Database file not found. Creating new file...")
+        tadalogger.logwarning("startup", "Database file not found. Creating new file...")
         # Create a new database file
         conn = sqlite3.connect(f"{config_handler.channel}.db")
-        conn.close()
-        logging.warning(f"Database file created. as {config_handler.channel}.db")
+        tadalogger.logwarning("startup", f"Database file created. as {config_handler.channel}.db")
     else:
-        logging.info("Database file found.")
+        tadalogger.loginfo("startup", "Database file found.")
     
     # Create event handler
     
     eventHandler = EventHandler()
+    eventHandler.assign_to_logger(tadalogger)
     dbconn = Databaseconn(eventHandler, config_handler.channel)
     eventHandler.assign_to_twitch(TwitchAPIConn)
     eventHandler.assign_to_DBConn(dbconn)
     eventHandler.assign_to_config(config_handler)
+    
     
     # run app 
     # connect to twitch
@@ -74,6 +65,8 @@ def start_twitch():
 
 
 if __name__ == "__main__":
+    
+    
     
     defaultconfig = {
         "channel": "",
@@ -129,9 +122,8 @@ if __name__ == "__main__":
     }
         
     if not os.path.exists("config.json"):
-        logging.warning("Config json file does not exist. creating config. please edit this file.")
+        print("startup Config json file does not exist. creating config. please edit this file.")
         config_temp = json.dumps(defaultconfig, indent=4)
-        logging.info(config_temp)
         with open("config.json", 'w') as file:
             file.write(config_temp)
         exit()
@@ -141,13 +133,13 @@ if __name__ == "__main__":
         config_data = json.load(file)
         exitapp = False
         if config_data['channel'] == "":
-            logging.warning("channel name is empty. please edit config file.")
+            print("startup channel name is empty. please edit config file.")
             exitapp = True
         if config_data['clientID'] == "":
-            logging.warning("clientID is empty. please edit config file.")
+            print("startup clientID is empty. please edit config file.")
             exitapp = True
         if config_data['clientSecret'] == "":
-            logging.warning("clientSecret is empty. please edit config file.")
+            print("startup clientSecret is empty. please edit config file.")
             exitapp = True
         if exitapp:
             exit()

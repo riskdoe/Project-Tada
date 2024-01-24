@@ -4,10 +4,8 @@ from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi_htmx import htmx, htmx_init
-from pathlib import Path
 from EventHandler import EventHandler
 from twitchAPI.chat import ChatMessage
-import logging
 import re as regex
 
 class cmessage():
@@ -39,9 +37,7 @@ def construct_messages():
     tofrontend = out[::-1]
     
     if len(tofrontend) > 250:
-        tofrontend = tofrontend[:250]
-    logging.info(f"Sending {len(tofrontend)} messages to frontend")
-    
+        tofrontend = tofrontend[:250]    
     return {"messages": tofrontend}
 
 @router.get("/messages", response_class=HTMLResponse)
@@ -53,14 +49,14 @@ async def get_messages(request: Request):
 class ChatLog(Module):
     def __init__(self, eventHandler: EventHandler):
         super().__init__("ChatLog" , eventHandler)
-        logging.info("ChatLog module loaded")
         self.reg = "/[^a-z0-9]/gi"
+        self.event_Handler.loginfo(self.name, " module loaded")
 #data: ChatMessage
     async def on_message(self, data: ChatMessage):
         text = regex.sub('[^0-9a-zA-Z:)(]+', ' ', data.text)
         message = cmessage(data.id, data.user.name, text, data.sent_timestamp)
         messages.append(message)
-        logging.info(f'{self.name}: {data.user.name}: {text}')
+        self.event_Handler.loginfo(self.name, f'{data.user.name}: {text}')
         self.event_Handler.DBConn.AddMessage(message)
     
     async def on_webfrontend_message(self, command):

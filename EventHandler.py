@@ -5,6 +5,7 @@ from ConfigHandler import ConfigHandler
 from twitchAPI.object.eventsub import ChannelFollowEvent, ChannelBanEvent
 from twitchAPI.chat import Chat, EventData, ChatMessage, ChatCommand
 from Databaseconn import Databaseconn
+from TadaLogger import tadaLogger
 
 class EventHandler:
     def __init__(self):
@@ -12,6 +13,7 @@ class EventHandler:
         self.TwitchAPI = None
         self.DBConn: Databaseconn = None
         self.config: ConfigHandler = None
+        self.tadalogger: tadaLogger = None
         self.commands = {}
         self.Modules: list[Module] = []
         
@@ -27,6 +29,9 @@ class EventHandler:
 
     def assign_to_config(self, config):
         self.config = config
+    
+    def assign_to_logger(self, logger):
+        self.tadalogger = logger
     
     def go_live(self,streamID):
         self.is_recording = True
@@ -89,8 +94,8 @@ class EventHandler:
     #------- event sub events -------   
     async def on_channel_update(self, data):
         for Module in self.Modules:
-            await Module.on_channel_update(data)    
-        
+            await Module.on_channel_update(data)
+            
     # on_follow
     async def on_follow(self, data: ChannelFollowEvent):
         #print(f'{data.event.user_name} followed, called from EventHandler')
@@ -197,3 +202,23 @@ class EventHandler:
     async def do_worker(self):
         for Module in self.Modules:
             await Module.do_worker()
+
+    #------- log events -------   
+
+    def logwarning(self,caller:str, message:str):
+        self.tadalogger.logwarning(caller, message)
+    
+    def loginfo(self,caller:str, message:str):
+        self.tadalogger.loginfo(caller, message)
+    
+    def logerror(self,caller:str, message:str):
+        self.tadalogger.logerror(caller, message)
+    
+    def logdebug(self,caller:str, message:str):
+        self.tadalogger.logdebug(caller, message)
+    
+    def eventtofrontend(self,caller:str, message:str):
+        self.tadalogger.eventtofrontend(caller, message)
+    
+    def ensurelog(self):
+        self.tadalogger.ensurelog()

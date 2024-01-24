@@ -18,6 +18,7 @@ from ModuleCommandHandler import router as commandhandler_router
 from ModulesStreamTracker import router as streamtracker_router
 from ModuleGiveAwayMachine import router as giveaway_router
 from Moduleraidtoshoutout import router as raidtoshoutout_router
+from TadaLogger import router as tadalogger_router
 
 # Create a new FastAPI application
 app = FastAPI()
@@ -39,6 +40,7 @@ app.include_router(commandhandler_router, prefix="/api/v1")
 app.include_router(streamtracker_router, prefix="/api/v1")
 app.include_router(giveaway_router, prefix="/api/v1")
 app.include_router(raidtoshoutout_router, prefix="/api/v1")
+app.include_router(tadalogger_router, prefix="/api/v1")
 
 
 
@@ -49,8 +51,6 @@ def construct_root_page():
     
 def construct_messages_test():
     messages = databaseconn.get_messages()
-    logging.info(type(messages))
-    #logging.info(f'messages: {messages}')
     return {"messages": messages}
 
 # Define a route
@@ -71,9 +71,9 @@ def start_fastapi():
     cpmfig_handler = ConfigHandler()
     cpmfig_handler.load_config('config.json')
     databaseconn = Databaseconn(None, cpmfig_handler.channel)
-    logging.info(type(databaseconn))
     
-    uvicorn.run(app, host="127.0.0.1", port=8080)
+    
+    uvicorn.run(app, host="127.0.0.1", port=8080, access_log=False)
     
     try:
         input('enter to exit')

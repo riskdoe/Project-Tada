@@ -1,18 +1,14 @@
 from Module import Module
 from EventHandler import EventHandler
-from twitchAPI.chat import ChatMessage,ChatUser, ChatCommand
-import logging
-from twitchAPI.twitch import Twitch
+from twitchAPI.chat import ChatCommand
 from twitchAPI.chat import Chat
 import json
 import random
-import os
 from twitchAPI.chat.middleware import UserRestriction as UsrRestriction
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi_htmx import htmx, htmx_init
-from pathlib import Path
 
 
 router = APIRouter()
@@ -185,8 +181,8 @@ class minigame_trivia():
         roundanswers = self.RoundQuestion.answers
         roundcategory = self.RoundQuestion.category
         numberofguesses = 0
-        logging.info(f"trivia started. question is: {self.RoundQuestion}")
-        logging.info(f"trivia started. answer is: {self.RoundQuestion.answers[int(self.RoundQuestion.correctAnswerIndex)]}")
+        self.Event_Handler.loginfo("minigame_trivia", f"trivia started. question is: {self.RoundQuestion}")
+        self.Event_Handler.loginfo("minigame_trivia", f"trivia started. answer is: {self.RoundQuestion.answers[int(self.RoundQuestion.correctAnswerIndex)]}")
 
     #return question
     def get_question(self):
@@ -233,8 +229,8 @@ class minigame_wordle():
         data = json.load(f)
         words = data["data"]
         self.word = words[random.randint(0,len(words)-1)]
-        self.word = self.word.lower()    
-        logging.info(f"wordle started. word is: {self.word}")
+        self.word = self.word.lower() 
+        self.event_Handler.loginfo("minigame_wordle", f"wordle started. word is: {self.word}")   
         
         self.correct_letters = None
         self.misplaced_letters = None
@@ -353,8 +349,8 @@ class MinigameSystem(Module):
                     cmd.user.id, 
                     cmd.user.name)
             self.players.append(player)
-            logging.info(f'{self.name}: {cmd.user.name} added to minigame system')
-            logging.info(player)
+            self.event_Handler.loginfo(self.name, f'{cmd.user.name}: {cmd.user.name} added to minigame system')
+            self.event_Handler.eventtofrontend(self.name, f'{cmd.user.name}: {cmd.user.name} added to minigame system')
             self.event_Handler.DBConn.AddMiniGamePlayer(player)
             await cmd.reply(f"you have been added to the minigame system")
 
@@ -410,10 +406,8 @@ class MinigameSystem(Module):
 
     async def on_webfrontend_message(self, command:str):
         if command == "start_trivia":
-            logging.info("starting trivia")
             await self.start_minigame("trivia")
         if command == "start_wordle":
-            logging.info("starting wordle")
             await self.start_minigame("wordle")
 
     #create minigame class
@@ -424,7 +418,7 @@ class MinigameSystem(Module):
         for player in self.event_Handler.DBConn.GetMiniGamePlayers():
             person = minigameplayer(player[0], player[1], player[2], player[3], player[4], player[5])
             self.players.append(person)
-            logging.info(f'{self.name}: {person.name} added to minigame system loaded from db')
+            self.event_Handler.loginfo(self.name, f'{person.name} added to minigame system loaded from db')
         self.current_game = None
         #create minigame commands
         self.event_Handler.TwitchAPI.add_command("signup", self.on_signup)
@@ -433,6 +427,8 @@ class MinigameSystem(Module):
         self.event_Handler.TwitchAPI.add_command("mgstats", self.user_get_stats)
         self.event_Handler.TwitchAPI.CHAT.register_command("starttrivia", self.start_triva,command_middleware=[UsrRestriction(allowed_users=self.event_Handler.TwitchAPI.PERMITTED_USERS)])
         self.event_Handler.TwitchAPI.CHAT.register_command("startwordle", self.start_wordle,command_middleware=[UsrRestriction(allowed_users=self.event_Handler.TwitchAPI.PERMITTED_USERS)])
+        
+        self.event_Handler.loginfo(self.name, " module loaded")
         
     #get list of players
     def get_players(self):

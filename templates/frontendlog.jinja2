@@ -1,0 +1,9 @@
+<ul
+    hx-get="/api/v1/log"
+    hx-trigger="load delay:1s"
+    hx-swap="outerHTML"
+>
+    {% for message in log %}
+        <li class="border-dashed border-b border-slate-400 mb-1">{{ message }}</li>
+    {% endfor %}
+</ul>

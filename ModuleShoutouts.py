@@ -5,8 +5,6 @@ from twitchAPI.chat import ChatMessage
 from twitchAPI.twitch import Twitch
 from twitchAPI.type import TwitchAPIException
 
-import logging
-
 class Shoutout(Module):
     def __init__(self, eventHandler: EventHandler):
         super().__init__("AutoShoutouts", eventHandler)
@@ -15,8 +13,8 @@ class Shoutout(Module):
         self.isSoft = eventHandler.config.auto_shoutout_isSoft
         self.message = eventHandler.config.auto_shoutout_message
         self.twitch: Twitch = eventHandler.TwitchAPI.TWITCH
-        logging.info("AutoShoutouts module loaded")
-        logging.info(f"Shoutout list: {self.to_shoutout}")
+        self.event_Handler.loginfo(self.name, " module loaded")
+        self.event_Handler.loginfo(self.name, f"Shoutout list: {self.to_shoutout}")
 
     # on message check if user is in shout out list
     async def on_message(self, data: ChatMessage):
@@ -36,8 +34,7 @@ class Shoutout(Module):
                         self.event_Handler.config.channelID
                         )
                 except TwitchAPIException as e:
-                    logging.info(f"{self.name}: {e}")   
+                    self.event_Handler.logerror(self.name, f" {e}")
                 
                 await self.event_Handler.send_message(f"{self.message.replace('{user}', data.user.name)}")
-            
-            logging.info(f"{self.name}: {data.user.name} was shouted out")
+            self.event_Handler.loginfo(self.name, f" {data.user.name} was shouted out")

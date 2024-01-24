@@ -138,7 +138,6 @@ def edit_command(commandname: Annotated[str,Form()], response: Annotated[str,For
     global COMMAND_QUEUE
     command = {"Edit_command": commandname, "Commandoutput": response}
     COMMAND_QUEUE.put(command)
-    logging.info({list(command.keys())[0]})
     return "command sent"
 
 @router.put("/delete_command/{commandname}")
@@ -146,7 +145,6 @@ def delete_command(commandname:str):
     global COMMAND_QUEUE
     command = {"Delete_command": commandname}
     COMMAND_QUEUE.put(command)
-    
     return "command deleted"
 
 @router.post("/add_command/")
@@ -161,7 +159,6 @@ def add_command(commandname: Annotated[str,Form()], commandoutput: Annotated[str
 @router.post("/update_where/")
 def update_where(Channel: Annotated[str,Form()], Location: Annotated[str,Form()]):
     global COMMAND_QUEUE
-    #logging.info(f"updating where to {Location} in {Channel}")
     command = {"Update_where": Channel, "Location": Location}
     COMMAND_QUEUE.put(command)
     return "command sent"
@@ -375,7 +372,6 @@ async def send_whisper(user: str, message: str):
     
 async def ban_user(user: str, reason: str):
     target = await first(TWITCH.get_users(logins=[user]))
-    logging.info(f"banning user: {target}")
     await TWITCH.ban_user(HOST_CHANNEL_ID, HOST_CHANNEL_ID, target.id, reason)
 
 async def unban_user(user: str):
@@ -415,7 +411,10 @@ async def twitch_setup():
     HOST_CHANNEL = user.login
     HOST_CHANNEL_ID = user.id
     EVENT_HANDLER.config.channelID = HOST_CHANNEL_ID
-    logging.info("target channel: " + HOST_CHANNEL)
+    
+    EVENT_HANDLER.loginfo("twitch_setup", f"channel id: {HOST_CHANNEL_ID}")
+    EVENT_HANDLER.loginfo("twitch_setup", f"channel name: {HOST_CHANNEL}")
+
     
     # target channels
     CHAT = await Chat(TWITCH)
@@ -437,23 +436,23 @@ async def twitch_setup():
     # add modules
     
     if(EVENT_HANDLER.config.chat_log):
-        logging.info("adding chat log")
+        EVENT_HANDLER.loginfo("twitch_setup", "adding chat log")
         chatLog = ChatLog(EVENT_HANDLER)
         EVENT_HANDLER.AddModule(chatLog)
     if(EVENT_HANDLER.config.ban_log):
-        logging.info("adding ban log")
+        EVENT_HANDLER.loginfo("twitch_setup", "adding ban log")
         banLog = BanLog(EVENT_HANDLER)
         EVENT_HANDLER.AddModule(banLog)
     if(EVENT_HANDLER.config.basic_command):
-        logging.info("adding command handler")
+        EVENT_HANDLER.loginfo("twitch_setup", "adding commands")
         commandHandler = CommandHandler(EVENT_HANDLER)
         EVENT_HANDLER.AddModule(commandHandler)
     if(EVENT_HANDLER.config.minigames):
-        logging.info("adding minigame handler")
+        EVENT_HANDLER.loginfo("twitch_setup", "adding minigame handler")
         miniGameHost = MinigameSystem(EVENT_HANDLER)
         EVENT_HANDLER.AddModule(miniGameHost)
     if(EVENT_HANDLER.config.auto_shoutout):
-        logging.info("adding shoutout handler")
+        EVENT_HANDLER.loginfo("twitch_setup", "adding shoutout handler")
         shoutout = Shoutout(EVENT_HANDLER)
         EVENT_HANDLER.AddModule(shoutout)
     
@@ -466,7 +465,6 @@ async def twitch_setup():
     raidtoshoutout = raid2shout(EVENT_HANDLER)
     EVENT_HANDLER.AddModule(raidtoshoutout)
     
-    logging.info(await get_user_pfp("poigpt"))
 
     #add all the commands
     commands = EVENT_HANDLER.Get_commands()
@@ -498,11 +496,12 @@ async def twitch_setup():
     await eventsub.listen_channel_chat_clear_user_messages(user.id, user.id, on_chat_clear_user_messages)
     await eventsub.listen_channel_chat_message_delete(user.id,user.id, on_chat_delete_messages)
 
-    logging.info("twitch setup complete")
     lastworkedtime = int(time.time())
     
     update_rate = EVENT_HANDLER.config.worker_update_rate
-    logging.info(f"update rate: {update_rate}")
+    EVENT_HANDLER.loginfo("twitch_setup", f"update rate: {update_rate}")
+    EVENT_HANDLER.loginfo("twitch_setup", "starting webfrontend")
+    EVENT_HANDLER.loginfo("twitch_setup", "If you have issues send output.log to poi :)")
     webbrowser.open('http://127.0.0.1:8080/')
     while True:
         #logging.info("loop1")
@@ -528,5 +527,5 @@ def run( clientID, clientSecret, EventHandler: EventHandler):
     EVENT_HANDLER = EventHandler
     PERMITTED_USERS = EventHandler.config.Super_moderators
     
-    logging.info("starting twitch chat connection")
+    EventHandler.loginfo("twitch_setup","starting twitch chat connection")
     asyncio.run(twitch_setup())

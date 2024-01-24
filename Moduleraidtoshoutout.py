@@ -1,7 +1,7 @@
 from Module import Module
 from EventHandler import EventHandler
 from twitchAPI.object.eventsub import ChannelRaidEvent
-import logging
+
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -38,7 +38,10 @@ class raidtoshoutout(Module):
     def __init__(self, eventHandler):
         global raiders
         super().__init__("raid_to_shoutout", eventHandler)
+        # testraider = raider("test", "test", "0", "https://static-cdn.jtvnw.net/jtv_user_pictures/6eec0c89-0213-4f11-8bd0-91da1e0d75e2-profile_image-300x300.png")
+        # raiders.append(testraider)
         self.twitch = eventHandler.TwitchAPI.TWITCH    
+        self.event_Handler.loginfo(self.name, " module loaded")
     
     async def on_raid(self, data: ChannelRaidEvent):
         global raiders, raiderscount
@@ -49,7 +52,8 @@ class raidtoshoutout(Module):
         raiderpfp = await self.event_Handler.get_pfp(raidername)
         raider = raider(raidername, raiderid, raiderchatcount, raiderpfp)
         raiders.append(raider)
-        logging.info(f"{self.name}: {raidername} was added to the raiders list")
+        self.event_Handler.loginfo(self.name, f"{raidername} was added to the raiders list")
+        self.event_Handler.eventtofrontend(self.name, f"{raidername} was added to the raiders list")
         raiderscount = len(raiders)
     
     async def loud_shoutout(self, personname):
@@ -63,13 +67,15 @@ class raidtoshoutout(Module):
                 self.event_Handler.config.channelID
                 )
         except TwitchAPIException as e:
-                logging.info(f"{self.name}: {e}")   
+            self.event_Handler.logerror(self.name, f"{self.name}: {e}")
+            self.event_Handler.eventtofrontend(self.name, f"{self.name}: {e}")
         
     async def on_webfrontend_message(self, command):
         global raiders, raiderscount
+        if type(command) is not dict:
+            return
         if list(command.keys())[0] == "clear_raiders":
             raiders.clear()
-            logging.info(f"{self.name}: raiders list was cleared")
         if list(command.keys())[0] == "remove_raider":
             personid = command["remove_raider"]
             raiders = [item for item in raiders if item.id != personid]

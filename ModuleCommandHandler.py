@@ -3,7 +3,6 @@ from Module import Module
 from EventHandler import EventHandler
 from twitchAPI.chat import ChatCommand
 from twitchAPI.chat.middleware import UserRestriction as UsrRestriction
-import logging
 from twitchAPI.chat.middleware import UserRestriction as UsrRestriction
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
@@ -48,11 +47,15 @@ class CommandHandler(Module):
 
 
     async def Faq_command(self,cmd: ChatCommand):
+        self.event_Handler.loginfo(self.name, f'{cmd.user.name} called FAQ')
+        self.event_Handler.eventtofrontend(self.name, f'{cmd.user.name} called FAQ')
         await self.event_Handler.send_message("FAQ")
         for faq in self.faq:
             await self.event_Handler.send_message(faq)
 
     async def Rules_command(self,cmd: ChatCommand):
+        self.event_Handler.loginfo(self.name, f'{cmd.user.name} called Rules')
+        self.event_Handler.eventtofrontend(self.name, f'{cmd.user.name} called Rules')
         await self.event_Handler.send_message("Rules")
         rulecount = 1
         for rule in self.rules:
@@ -60,10 +63,14 @@ class CommandHandler(Module):
             rulecount = rulecount + 1
 
     async def where_command(self,cmd: ChatCommand):
+        self.event_Handler.loginfo(self.name, f'{cmd.user.name} called where')
+        self.event_Handler.eventtofrontend(self.name, f'{cmd.user.name} called where')
         builtmessage = f"Channel {wherechannel}, {wherelocation}"
         await cmd.reply(builtmessage)
 
     async def commands_list(self,cmd: ChatCommand):
+        self.event_Handler.loginfo(self.name, f'{cmd.user.name} called commands')
+        self.event_Handler.eventtofrontend(self.name, f'{cmd.user.name} called commands')
         commandlist :str = ""
 
         for command in self.basic_commands:
@@ -71,19 +78,18 @@ class CommandHandler(Module):
         await self.event_Handler.send_message(commandlist)
 
     async def ban_command(self,cmd: ChatCommand):
-        logging.info(f"CommandHandler: {cmd.name} command called")
         if len(cmd.parameter) == 0:
             await self.event_Handler.send_message("Please provide User and reason")
             return
         res = cmd.parameter.split(' ', 1)
         user = res[0]
         Reason = res[1]
+        self.event_Handler.loginfo(self.name, f"{cmd.user.name} called ban on {user} || {Reason}")
+        self.event_Handler.eventtofrontend(self.name, f"{cmd.user.name} called ban on {user} || {Reason}")
         await self.event_Handler.ban_user(user, Reason)
-        logging.info(f"CommandHandler.ban_command: Params: '{user}' || '{Reason}'")
         #this should get auto logged in sql table due to onban function
     
     async def unban_command(self,cmd: ChatCommand):
-        logging.info(f"CommandHandler: {cmd.name} command called")
         if len(cmd.parameter) == 0:
             await self.event_Handler.send_message("Please provide User")
             return
@@ -92,13 +98,15 @@ class CommandHandler(Module):
             return
         user = cmd.parameter
         await self.event_Handler.unban_user(user)
-        logging.info(f"CommandHandler.unban_command: Params: '{user}'")
+        self.event_Handler.loginfo(self.name, f"{cmd.user.name} called unban on {user}")
+        self.event_Handler.eventtofrontend(self.name, f"{cmd.user.name} called unban on {user}")
         #this should get auto logged in sql table due to onban function
 
     #basic handler for basic response commands
     async def basic_handler(self, cmd: ChatCommand):
         output = self.basic_commands[cmd.name]
-        logging.info(f"CommandHandler: {cmd.name} command called")
+        self.event_Handler.loginfo(self.name, f'{cmd.user.name} called {cmd.name}')
+        self.event_Handler.eventtofrontend(self.name, f'{cmd.user.name} called {cmd.name}')
         await self.event_Handler.send_message(output)
 
 #=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=
@@ -107,7 +115,6 @@ class CommandHandler(Module):
         basiccommandlist.clear()
         self.basic_commands.clear()
         for basic_command in self.event_Handler.DBConn.GetBasicCommands():
-            logging.info(f"CommandHandler: Added basic command: {basic_command}")
             self.basic_commands[basic_command[0]] = basic_command[1]
             self.event_Handler.TwitchAPI.CHAT.register_command(basic_command[0], self.basic_handler)
             basiccommandlist.append({
@@ -123,11 +130,11 @@ class CommandHandler(Module):
         self.event_Handler.Add_command(command, self.basic_handler)
         self.event_Handler.DBConn.AddBasicCommand(command, response)
         self.get_updated_basic_commands()
-        logging.info(f"CommandHandler.add_command: Params: '{command}' || '{response}'")
+        self.event_Handler.loginfo(self.name, f'{command} command added')
+        self.event_Handler.eventtofrontend(self.name, f'{command} command added')
         return True
    
     async def add_command_callback(self,cmd: ChatCommand):
-        logging.info(f"CommandHandler: {cmd.name} command called")
         if len(cmd.parameter) == 0:
             await self.event_Handler.send_message("Please provide a command to add")
         else:
@@ -145,26 +152,20 @@ class CommandHandler(Module):
 
 
     def remove_command(self,command):
-        logging.info("here")
         for commandz in self.basic_commands:
-            logging.info(commandz)
             if commandz == command:
-                logging.info("CommandHandler.remove_command: compair success")
                 break
-        if command in self.basic_commands:
-            logging.info("CommandHandler.remove_command: command found")
         if command not in self.basic_commands:
-            logging.info("CommandHandler.remove_command: command not found")
             return False
         self.event_Handler.TwitchAPI.CHAT.unregister_command(command)
         self.event_Handler.DBConn.RemoveBasicCommand(command)
         self.get_updated_basic_commands()
-        logging.info(f"CommandHandler.remove_command: Params {command}")
+        self.event_Handler.loginfo(self.name, f'{command} command removed')
+        self.event_Handler.eventtofrontend(self.name, f'{command} command removed')
         return True
     
     
     async def remove_command_callback(self,cmd: ChatCommand):
-        logging.info(f"CommandHandler: {cmd.name} command called")
         if len(cmd.parameter) == 0:
             await self.event_Handler.send_message("Please provide a command to remove")
         else:
@@ -181,11 +182,11 @@ class CommandHandler(Module):
             return False
         self.event_Handler.DBConn.EditBasicCommand(command, response)
         self.get_updated_basic_commands()
-        logging.info(f"CommandHandler.edit_command: Params {command}")
+        self.event_Handler.loginfo(self.name, f'{command} command edited')
+        self.event_Handler.eventtofrontend(self.name, f'{command} command edited')
         return True
 
     async def edit_command_callback(self,cmd: ChatCommand):
-        logging.info(f"CommandHandler: {cmd.name} command called")
         if len(cmd.parameter) == 0:
             await self.event_Handler.send_message("Please provide a command to edit")
         else:
@@ -204,7 +205,8 @@ class CommandHandler(Module):
 #=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=
 
     async def get_stats(self,cmd: ChatCommand):
-        logging.info(f"CommandHandler: {cmd.name} command called")
+        self.event_Handler.loginfo(self.name, f'{cmd.user.name} called stats')
+        self.event_Handler.eventtofrontend(self.name, f'{cmd.user.name} called stats')
         if len(cmd.parameter) == 0:
             user = cmd.user.name
             stats = self.event_Handler.DBConn.get_user_stats(user)
@@ -253,7 +255,7 @@ class CommandHandler(Module):
         self.basic_commands = {}
         
         for command in self.commands:
-            logging.info(f"CommandHandler: Added command: {command}")
+            self.event_Handler.loginfo(self.name, f" Added command: {command}")
             if (   command == "add_command" 
                 or command == "remove_command" 
                 or command == "edit_command"
@@ -269,9 +271,7 @@ class CommandHandler(Module):
         
         self.get_updated_basic_commands()
 
-
-        logging.info("CommandHandler module loaded")
-    
+        self.event_Handler.loginfo(self.name, " module loaded")    
     
     def cleanstring(self, string):
         string = string.replace(" ", "")

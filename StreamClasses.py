@@ -3,8 +3,7 @@ from twitchAPI.chat import ChatMessage
 from twitchAPI.object.api import ChannelInformation,GetChattersResponse
 import time
 from datetime import datetime
-import asyncio
-import logging
+
 
 def get_time():
     return int(time.time())
@@ -81,70 +80,71 @@ class stream_instance():
         #we need a worker for this next part
         #updates every x ammount of time
         self.update_time = caller.event_Handler.config.worker_update_rate
-        logging.info(f"stream_instance.__init__: update time is {self.update_time}")
         self.veiwer_watchtime = {}
         self.active = True
+        global streamcordingactive
+        streamcordingactive = True
         
         
         self.veiwer_total_watchtime = {}
 
         for user in self.owner.event_Handler.DBConn.get_all_user_watchtime():
             self.veiwer_total_watchtime[user[0]] = user[1]
-        logging.info(self.veiwer_total_watchtime)
+        
+        
+        global streamstarttime
+
+        streamstarttime = datetime.now().strftime("%H:%M")
+
 
         
     
     async def check_for_chatters(self):
-        logging.debug("stream_instance.check_for_chatters: checking for chatters")
         chattersresponse : GetChattersResponse = await self.owner.event_Handler.TwitchAPI.get_chat_users()
         chatters = chattersresponse.data
-        logging.info(f"stream_instance.check_for_chatters: checking for chatters, time:{datetime.utcfromtimestamp(get_time()).strftime('%H:%M')}")
         for chatter in chatters:
             
             name = chatter.user_name.lower()
             
-            logging.info(f"stream_instance.check_for_chatters: {name} was found")
             
             if name not in self.veiwer_total_watchtime:
-                logging.info(f"stream_instance.check_for_chatters: new chatter {name} was found, added")
                 self.veiwer_total_watchtime[name] = self.update_time
                 self.owner.event_Handler.DBConn.addveiwer(name, self.veiwer_total_watchtime[name])
             else:
 
                 self.veiwer_total_watchtime[name] += self.update_time
-                logging.info(f"stream_instance.check_for_chatters: {name} was found, updated new points {self.veiwer_total_watchtime[name]}")
                 self.owner.event_Handler.DBConn.updatetotalwatchtime(name, self.veiwer_total_watchtime[name])
 
             if name not in self.veiwer_watchtime:
                 self.veiwer_watchtime[name] = 0
-                logging.debug(f"stream_instance.check_for_chatters: new chatter {name} was found, added")                
             else:
                 self.veiwer_watchtime[name] += self.update_time
-                logging.debug(f"stream_instance.check_for_chatters: {name} was found, updated")
-        
-    # async def start_worker(self):
-    #     while self.active:
-    #         logging.info("loop2")
-    #         await asyncio.gather(
-    #         asyncio.sleep(self.update_time),
-    #         self.check_for_chatters(),
-    #         )    
         
 
     def updatewasrun(self):
-        logging.info("stream_instance.updatewasrun: update was run")
-        logging.info(f"stream_instance.updatewasrun: {self.stream_start_time} was start time")
-        logging.info(f"stream_instance.updatewasrun: {self.num_of_messages_during_stream} messages were sent")
-        logging.debug(f"stream_instance.updatewasrun: {len(self.active_chatter)} chatters were active")
-        logging.debug(f"stream_instance.updatewasrun: {len(self.follows_during_stream)} follows were made")
-        logging.debug(f"stream_instance.updatewasrun: {len(self.subs_during_stream)} subs were made")
-        logging.debug(f"stream_instance.updatewasrun: {len(self.giftsubs_during_stream)} gift subs were made")
-        logging.debug(f"stream_instance.updatewasrun: {len(self.raids_during_stream)} raids were made")
-        logging.debug(f"stream_instance.updatewasrun: {len(self.cheers_during_stream)} cheers were made")
-        logging.debug(f"stream_instance.updatewasrun: {len(self.shoutouts_during_stream)} shoutouts were made")
+        self.event_Handler.loginfo(self.name, ".updatewasrun: update was run")
+        self.event_Handler.loginfo(self.name, f".updatewasrun: {self.stream_start_time} was start time")
+        self.event_Handler.loginfo(self.name, f".updatewasrun: {self.num_of_messages_during_stream} messages were sent")
+        self.event_Handler.logdebug(self.name, f".updatewasrun: {len(self.active_chatter)} chatters were active")
+        self.event_Handler.logdebug(self.name, f".updatewasrun: {len(self.follows_during_stream)} follows were made")
+        self.event_Handler.logdebug(self.name, f".updatewasrun: {len(self.subs_during_stream)} subs were made")
+        self.event_Handler.logdebug(self.name, f".updatewasrun: {len(self.giftsubs_during_stream)} gift subs were made")
+        self.event_Handler.logdebug(self.name, f".updatewasrun: {len(self.raids_during_stream)} raids were made")
+        self.event_Handler.logdebug(self.name, f".updatewasrun: {len(self.cheers_during_stream)} cheers were made")
+        self.event_Handler.logdebug(self.name, f".updatewasrun: {len(self.shoutouts_during_stream)} shoutouts were made")
         if(self.stream_end_time != None):
-            logging.debug(f"stream_instance.updatewasrun: {self.stream_end_time} was end time")
-            logging.debug(f"stream_instance.updatewasrun: {self.stream_duration} was duration")
+            self.event_Handler.loginfo(self.name, f".updatewasrun: {self.stream_end_time} was end time")
+            self.event_Handler.loginfo(self.name, f".updatewasrun: {self.stream_duration} was duration")
+            
+        global  streamfollows, streamsubs, streamgiftsubs, streamraids, streamcheers, streamshoutouts, streammumberofactivechatters, streamnumberofmessages
+        streamfollows = len(self.follows_during_stream)
+        streamsubs = len(self.subs_during_stream)
+        streamgiftsubs = len(self.giftsubs_during_stream)
+        streamraids = len(self.raids_during_stream)
+        streamcheers = len(self.cheers_during_stream)
+        streamshoutouts = len(self.shoutouts_during_stream)
+        streammumberofactivechatters = len(self.active_chatter)
+        streamnumberofmessages = self.num_of_messages_during_stream
         
         
 
@@ -152,15 +152,21 @@ class stream_instance():
         self.stream_end_time = get_time()
         self.stream_duration = self.stream_end_time - self.stream_start_time
         self.active = False
+        global streamcordingactive
+        streamcordingactive = False
         self.updatewasrun()
 
     def add_title(self, streamtitle, changetime):
+        global streamTitle
+        streamTitle = streamtitle
         self.stream_title.append(title(streamtitle, changetime))
         self.updatewasrun()
 
     
-    def add_game(self, game, changetime):
-        self.stream_game.append(game(game, changetime))
+    def add_game(self, newgame, changetime):
+        global streamgame
+        streamgame = newgame
+        self.stream_game.append(game(newgame, changetime))
         self.updatewasrun()
 
     def add_follow(self, user, followtime):
@@ -192,4 +198,3 @@ class stream_instance():
         if chatername not in self.active_chatter:
             self.active_chatter.append(chatername)
         self.updatewasrun()
-
