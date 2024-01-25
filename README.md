@@ -22,6 +22,9 @@ git clone https://github.com/riskdoe/Project-Tada.git
 cd Project-Tada
 pip install -r requirements.txt
 python ./app.py
+notepad .\config.json
+//edit config to suit you (https://github.com/riskdoe/Project-Tada/wiki/2:-Config)
+python ./app.py
 ```
 
 make sure to update the config in `config.json`
