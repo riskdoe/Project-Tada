@@ -146,8 +146,11 @@ if __name__ == "__main__":
     
     # Run FastAPI server in a separate thread
     fastapi_thread = Thread(target=APIendpoints.start_fastapi)
+    fastapi_thread.daemon = True
     fastapi_thread.start()
     
     start_twitch()
+    print("Close application and try again")
+    exit()
     
     

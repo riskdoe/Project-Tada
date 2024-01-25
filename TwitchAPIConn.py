@@ -404,7 +404,15 @@ async def twitch_setup():
     TWITCH = await Twitch(APP_ID, APP_SECRET)
     AUTH = UserAuthenticator(TWITCH, TARGET_SCOPE)
     helper = UserAuthenticationStorageHelper( TWITCH, TARGET_SCOPE, storage_path=PurePath('./oauth.json'))
-    await helper.bind()
+    
+    print("waiting for auth")
+    try:
+        await asyncio.wait_for(helper.bind(), timeout=60.0)
+    except asyncio.TimeoutError:
+        print("auth timeout")
+        return
+    
+    print("auth complete. loading bot")
     
     #get target channel
     user = await first(TWITCH.get_users())
@@ -529,3 +537,4 @@ def run( clientID, clientSecret, EventHandler: EventHandler):
     
     EventHandler.loginfo("twitch_setup","starting twitch chat connection")
     asyncio.run(twitch_setup())
+    return
