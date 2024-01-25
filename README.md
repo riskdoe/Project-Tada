@@ -11,7 +11,22 @@ todo: find a way to get the server to tell the webapp to update rather then requ
 
 (where command is mostly built for people that play mabinogi but can be edited or removed)
 
+# Set up
 
+Check the wiki page for the setup (https://github.com/riskdoe/Project-Tada/wiki/1:-Setup)
+
+tldr
+install python, install git
+```
+git clone https://github.com/riskdoe/Project-Tada.git
+cd Project-Tada
+pip install -r requirements.txt
+python ./app.py
+```
+
+make sure to update the config in `config.json`
+
+*only tested on windows. should work on linux just fine. no idea about mac*
 
 
 ## Libarys used
