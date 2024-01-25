@@ -23,7 +23,11 @@ wherelist = []
 def construct_command_page():
     if len(basiccommandlist) == 0:
         return {
-            "commands": "None"
+            "commands": "None",
+            "channel": wherechannel,
+            "locations": wherelist,
+            "selectedloca": wherelocation
+
         }
     else:
         return {
