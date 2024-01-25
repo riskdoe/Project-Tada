@@ -24,6 +24,8 @@ from typing import Annotated
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import RedirectResponse
 from EventHandler import EventHandler
+import APIendpoints
+from threading import Thread
 
 #other imports
 import asyncio
@@ -413,6 +415,10 @@ async def twitch_setup():
         return
     
     print("auth complete. loading bot")
+        # Run FastAPI server in a separate thread
+    fastapi_thread = Thread(target=APIendpoints.start_fastapi)
+    fastapi_thread.daemon = True
+    fastapi_thread.start()
     
     #get target channel
     user = await first(TWITCH.get_users())

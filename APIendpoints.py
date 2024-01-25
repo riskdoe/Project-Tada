@@ -11,7 +11,7 @@ import uvicorn
 import logging
 
 # endpoint routers
-from TwitchAPIConn import router as twitch_api_router
+
 from ModuleChatLog import router as chatlog_router
 from ModuleMiniGameSystem import router as minigamesystem_router
 from ModuleCommandHandler import router as commandhandler_router
@@ -33,7 +33,7 @@ databaseconn = None
 
 
 # routers for API endpoints (make frontend work)
-app.include_router(twitch_api_router, prefix="/api/v1")
+
 app.include_router(chatlog_router, prefix="/api/v1")
 app.include_router(minigamesystem_router, prefix="/api/v1")
 app.include_router(commandhandler_router, prefix="/api/v1")
@@ -72,6 +72,9 @@ def start_fastapi():
     cpmfig_handler.load_config('config.json')
     databaseconn = Databaseconn(None, cpmfig_handler.channel)
     
+    #prevent circular import
+    from TwitchAPIConn import router as twitch_api_router
+    app.include_router(twitch_api_router, prefix="/api/v1")
     
     uvicorn.run(app, host="127.0.0.1", port=8080, access_log=False)
     

@@ -1,11 +1,10 @@
 import json
+import sys
 from ConfigHandler import ConfigHandler
 import os
 import sqlite3
 from Databaseconn import Databaseconn
 from EventHandler import EventHandler
-import APIendpoints
-from threading import Thread
 
 import TwitchAPIConn
 
@@ -144,13 +143,10 @@ if __name__ == "__main__":
         if exitapp:
             exit()
     
-    # Run FastAPI server in a separate thread
-    fastapi_thread = Thread(target=APIendpoints.start_fastapi)
-    fastapi_thread.daemon = True
-    fastapi_thread.start()
+
     
     start_twitch()
     print("Close application and try again")
-    exit()
+    sys.exit()
     
     
