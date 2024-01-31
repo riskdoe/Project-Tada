@@ -10,85 +10,7 @@
 <body class="bg-slate-900 ">
     <div id="tada" class="flex flex-col h-screen">
         <div class="grow flex flex-row pb-4">
-            <div class="h-full p-3 w-2/6">
-                <div id="streamstats" class="flex flex-col h-2/5 p-2 mb-3 bg-gray-800 rounded-lg" >
-                    <h2 class="text-3xl mb-2">Stream Stats</h2>
-                    <div id="streamstatsbox" 
-                    class="grow w-full overflow-y-auto h-1" 
-                        hx-get="/api/v1/streamstats"
-                        hx-trigger="load"
-                    >
-                    </div>
-                    <div class="flex space-x-4 mb-2">
-                        <button class="w-1/2 shadow-md shadow-indigo-500/50 bg-slate-900 ring-2 ring-violet-800/50 text-slate-300 p-2 rounded"
-                            hx-get="/api/v1/testing/startstream"
-                            hx-swap="none"
-                            hx-on::after-request="this.reset()"
-                        >
-                            Start Stream Stats Recording
-                        </button>
-                        <button class="w-1/2 shadow-md shadow-indigo-500/50 bg-slate-900 ring-2 ring-violet-800/50 text-slate-300 p-2 rounded"
-                            hx-get="/api/v1/testing/endstream"
-                            hx-swap="none"
-                            hx-on::after-request="this.reset()"
-                        >
-                            End Stream Stats Recording
-                        </button>
-                    </div>
-                </div>
-
-                <div id="chatbox" class="flex flex-col h-3/5 p-2 mb-3 bg-gray-800 rounded-lg" >
-                    <h2>Chatbox</h2>
-                    <div id="message_list"
-                    class="grow w-full overflow-y-auto h-1 scroll-smooth mb-2 bg-transparent text-slate-50 p-2 ring-2 ring-violet-800/50 w-1/2 rounded"
-                    hx-get="/api/v1/messages"
-                    hx-trigger="load"
-                    >
-                    </div>
-                    <form class= "flex space-x-4 mb-2" id="sendmessage" 
-                        hx-post="/api/v1/send_message/"
-                        hx-swap="none"
-                        hx-on::after-request="this.reset()"
-                    >
-                        <input class="bg-transparent text-slate-50 p-2 ring-2 ring-violet-800/50 w-3/4 rounded" type="text" id="TwitchMessage" name="TwitchMessage" placeholder="Message...">
-                        <button class="shadow-md shadow-indigo-500/50 bg-slate-900 ring-2 ring-violet-800/50 ring-2 ring-violet-800/50 text-slate-300 p-2 w-1/4 rounded" type="submit">Submit</button>
-                    </form>
-                </div>
-            </div>
-            <div class="h-full p-3 pl-0 w-3/6">
-                <div id="command_handler" class="h-4/6 p-2 mb-3 bg-gray-800 rounded-lg" 
-                    hx-get="/api/v1/commands"
-                    hx-trigger="load"
-                    >
-                </div>
-
-                <div id="bottommiddle" class="flex flex-row h-2/6" >
-                    <div id="bottommiddleleft" class="flex flex-col h-full w-1/2 p-2 mr-1 bg-gray-800 rounded-lg" >
-                        <h2>Minigames</h2>
-
-
-                        <div id="minigame"
-                            hx-get="/api/v1/minigamebox"
-                            hx-trigger="load"
-                            hx-swap="outerHTML"
-                            class="flex flex-col h-full w-full"
-                        >
-                        </div>
-                    </div>
-                    
-                    <div id="actionlog" class="flex flex-col h-full w-1/2 p-2 ml-2 bg-gray-800 rounded-lg">
-                        <h2>Action Log</h2>
-                        <div id="actionlogbox" 
-                            class="grow w-full overflow-y-auto h-1" 
-                            hx-get="/api/v1/log"
-                            hx-trigger="load"
-                        >
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-            <div class="h-full p-3 pl-0 w-1/6">
+            <div class="h-full p-3 w-1/6">
                 <div id="raidtoshoutout" class="flex flex-col h-2/6 p-2 mb-3 bg-gray-800 rounded-lg">
                     <h2> Raid to Shoutout </h2>
                     <div id="raidtoshoutoutbox" 
@@ -137,6 +59,85 @@
                         </div>
                 </div>
 
+            </div>
+            <div class="h-full p-3 pl-0 w-3/6">
+                <div id="command_handler" class="h-4/6 p-2 mb-3 bg-gray-800 rounded-lg" 
+                    hx-get="/api/v1/commands"
+                    hx-trigger="load"
+                    >
+                </div>
+
+                <div id="bottommiddle" class="flex flex-row h-2/6" >
+                    <div id="bottommiddleleft" class="flex flex-col h-full w-1/2 p-2 mr-1 bg-gray-800 rounded-lg" >
+                        <h2>Minigames</h2>
+
+
+                        <div id="minigame"
+                            hx-get="/api/v1/minigamebox"
+                            hx-trigger="load"
+                            hx-swap="outerHTML"
+                            class="flex flex-col h-full w-full"
+                        >
+                        </div>
+                    </div>
+                    
+                    <div id="actionlog" class="flex flex-col h-full w-1/2 p-2 ml-2 bg-gray-800 rounded-lg">
+                        <h2>Action Log</h2>
+                        <div id="actionlogbox" 
+                            class="grow w-full overflow-y-auto h-1" 
+                            hx-get="/api/v1/log"
+                            hx-trigger="load"
+                        >
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="h-full p-3 pl-0 w-2/6">
+                <div id="streamstats" class="flex flex-col h-2/5 p-2 mb-3 bg-gray-800 rounded-lg" >
+                    <h2 class="text-3xl mb-2">Stream Stats</h2>
+                    <div id="streamstatsbox" 
+                    class="grow w-full overflow-y-auto h-1" 
+                        hx-get="/api/v1/streamstats"
+                        hx-trigger="load"
+                    >
+                    </div>
+                    <div class="flex space-x-4 mb-2">
+                        <button class="w-1/2 shadow-md shadow-indigo-500/50 bg-slate-900 ring-2 ring-violet-800/50 text-slate-300 p-2 rounded"
+                            hx-get="/api/v1/testing/startstream"
+                            hx-swap="none"
+                            hx-on::after-request="this.reset()"
+                        >
+                            Start Stream Stats Recording
+                        </button>
+                        <button class="w-1/2 shadow-md shadow-indigo-500/50 bg-slate-900 ring-2 ring-violet-800/50 text-slate-300 p-2 rounded"
+                            hx-get="/api/v1/testing/endstream"
+                            hx-swap="none"
+                            hx-on::after-request="this.reset()"
+                        >
+                            End Stream Stats Recording
+                        </button>
+                    </div>
+                </div>
+
+                <div id="chatbox" class="flex flex-col h-3/5 p-2 mb-3 bg-gray-800 rounded-lg" >
+                    <h2>Chatbox</h2>
+                    <div id="message_list"
+                    class="grow w-full overflow-y-auto h-1 scroll-smooth mb-2 bg-transparent text-slate-50 p-2 ring-2 ring-violet-800/50 w-1/2 rounded"
+                    hx-get="/api/v1/messages"
+                    hx-trigger="load"
+                    >
+                    </div>
+                    <form class= "flex space-x-4 mb-2" id="sendmessage" 
+                        hx-post="/api/v1/send_message/"
+                        hx-swap="none"
+                        hx-on::after-request="this.reset()"
+                    >
+                        <input class="bg-transparent text-slate-50 p-2 ring-2 ring-violet-800/50 w-3/4 rounded" type="text" id="TwitchMessage" name="TwitchMessage" placeholder="Message...">
+                        <button class="shadow-md shadow-indigo-500/50 bg-slate-900 ring-2 ring-violet-800/50 ring-2 ring-violet-800/50 text-slate-300 p-2 w-1/4 rounded" type="submit">Submit</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
