@@ -51,20 +51,22 @@ class CommandHandler(Module):
 
 
     async def Faq_command(self,cmd: ChatCommand):
-        self.event_Handler.loginfo(self.name, f'{cmd.user.name} called FAQ')
-        self.event_Handler.eventtofrontend(self.name, f'{cmd.user.name} called FAQ')
-        await self.event_Handler.send_message("FAQ")
-        for faq in self.faq:
-            await self.event_Handler.send_message(faq)
+        if self.event_Handler.config.faq == True:
+            self.event_Handler.loginfo(self.name, f'{cmd.user.name} called FAQ')
+            self.event_Handler.eventtofrontend(self.name, f'{cmd.user.name} called FAQ')
+            await self.event_Handler.send_message("FAQ")
+            for faq in self.faq:
+                await self.event_Handler.send_message(faq)
 
     async def Rules_command(self,cmd: ChatCommand):
-        self.event_Handler.loginfo(self.name, f'{cmd.user.name} called Rules')
-        self.event_Handler.eventtofrontend(self.name, f'{cmd.user.name} called Rules')
-        await self.event_Handler.send_message("Rules")
-        rulecount = 1
-        for rule in self.rules:
-            await self.event_Handler.send_message(f"{rulecount}: {rule}")
-            rulecount = rulecount + 1
+        if self.event_Handler.config.rules == True:
+            self.event_Handler.loginfo(self.name, f'{cmd.user.name} called Rules')
+            self.event_Handler.eventtofrontend(self.name, f'{cmd.user.name} called Rules')
+            await self.event_Handler.send_message("Rules")
+            rulecount = 1
+            for rule in self.rules:
+                await self.event_Handler.send_message(f"{rulecount}: {rule}")
+                rulecount = rulecount + 1
 
     async def where_command(self,cmd: ChatCommand):
         self.event_Handler.loginfo(self.name, f'{cmd.user.name} called where')
