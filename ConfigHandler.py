@@ -71,5 +71,5 @@ class ConfigHandler:
             self.rules = config_data['rules']
             self.rules_list = config_data['rules_list']
             
-            self.defaultwherechannel = config_data['defaultwherechannel']
+            self.defaultwherechannel = 3
             self.wherelocations = config_data['wherelocations']
